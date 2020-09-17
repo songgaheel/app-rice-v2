@@ -21,6 +21,7 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
     super.initState();
     _myActivity = '';
     _myActivityResult = '';
+    _dateTime = DateTime.now();
   }
 
   Widget _buildFarmNameTB() {
@@ -96,7 +97,7 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
         ),
         SizedBox(height: 30),
         Text(
-          'วันเริ่มต้นการปลูก',
+          'วันเริ่มต้นทำนา',
           style: kLabelStyle,
         ),
         SizedBox(height: 10),
@@ -126,13 +127,13 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
                 },
               ),
               TextField(
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.datetime,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.only(top: 6),
                     hintText: _dateTime == null
-                        ? 'กรุณากำหนดวันที่ต้องการ'
+                        ? 'กรุณากำหนดวันเริ่มต้นทำนา'
                         : _dateTime.toString(),
                     hintStyle: kHintTextStyle),
               ),
@@ -172,11 +173,12 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
             ),
             color: Colors.white,
             child: Text(
-              'ประเมิน',
+              'ต่อไป',
               style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],

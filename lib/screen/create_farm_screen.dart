@@ -2,7 +2,6 @@ import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:flutter/material.dart';
 
 import '../style/constants.dart';
-import 'create_farm_eval_varietie.dart';
 
 class CreateFarmScreen extends StatefulWidget {
   @override
@@ -11,14 +10,12 @@ class CreateFarmScreen extends StatefulWidget {
 
 class _CreateFarmScreenState extends State<CreateFarmScreen> {
   String _myActivity;
-  String _myActivityResult;
   final formKey = new GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
     _myActivity = '';
-    _myActivityResult = '';
   }
 
   Widget _buildFarmLocationDD() {
@@ -30,7 +27,7 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
           alignment: Alignment.center,
           decoration: kBoxDecorationStyle,
           child: DropDownFormField(
-            titleText: 'ตัวเลือกการประเมิน',
+            titleText: 'เลือกตำแหน่งที่นา',
             hintText: 'กรุณาเลือก',
             value: _myActivity,
             onSaved: (value) {
@@ -79,7 +76,7 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
           decoration: kBoxDecorationStyle,
           height: 60,
           child: TextField(
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.name,
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
                 border: InputBorder.none,
@@ -103,7 +100,7 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
           decoration: kBoxDecorationStyle,
           height: 60,
           child: TextField(
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.number,
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
                 border: InputBorder.none,
@@ -113,55 +110,6 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
                   color: Colors.grey,
                 ),
                 hintText: 'ไร่',
-                hintStyle: kHintTextStyle),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _buildFarmLocationTB() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'ตำแหน่งที่นา',
-          style: kLabelStyle,
-        ),
-        SizedBox(height: 10),
-        Container(
-          alignment: Alignment.centerLeft,
-          decoration: kBoxDecorationStyle,
-          height: 60,
-          child: TextField(
-            keyboardType: TextInputType.emailAddress,
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.landscape,
-                  color: Colors.grey,
-                ),
-                hintText: 'ภาค',
-                hintStyle: kHintTextStyle),
-          ),
-        ),
-        Container(
-          alignment: Alignment.centerLeft,
-          decoration: kBoxDecorationStyle,
-          height: 60,
-          child: TextField(
-            keyboardType: TextInputType.emailAddress,
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.landscape,
-                  color: Colors.grey,
-                ),
-                hintText: 'จังหวัด',
                 hintStyle: kHintTextStyle),
           ),
         )

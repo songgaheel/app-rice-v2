@@ -94,25 +94,45 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
     );
   }
 
+  Widget _buildButton() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 25),
+      width: double.infinity,
+      child: ButtonBar(
+        alignment: MainAxisAlignment.center,
+        children: [
+          RaisedButton(
+            elevation: 5,
+            onPressed: () =>
+                Navigator.pushNamed(context, '/NewFeed/Eval/Result/Timeline'),
+            padding: EdgeInsets.symmetric(
+              horizontal: 35,
+              vertical: 15,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            color: Colors.white,
+            child: Text(
+              'ต่อไป',
+              style: TextStyle(
+                  color: Colors.black,
+                  letterSpacing: 1.5,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('ผลการประเมิน'),
         backgroundColor: colorTheam,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.arrow_forward),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TimelinePage(title: 'แผนการปลูกข้าว'),
-                ),
-              );
-            },
-          )
-        ],
       ),
       body: Stack(
         children: [
@@ -157,6 +177,7 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
                   SizedBox(
                     height: 30,
                   ),
+                  _buildButton(),
                 ],
               ),
             ),

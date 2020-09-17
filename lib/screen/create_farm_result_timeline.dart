@@ -23,29 +23,36 @@ class _TimelinePageState extends State<TimelinePage> {
       appBar: AppBar(
         title: Text('ผลการประเมิน'),
         backgroundColor: colorTheam,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                '/home',
-              );
-            },
-          )
-        ],
       ),
       body: timelineModel(TimelinePosition.Left),
-      bottomNavigationBar: BottomNavigationBar(
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            title: Text('เพิ่มที่นาใหม่'),
-          ),
-        ],
-        selectedItemColor: Colors.grey,
-        unselectedItemColor: Colors.grey,
-        currentIndex: 0,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton.extended(
+        elevation: 5,
+        onPressed: () {},
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        icon: Icon(Icons.check),
+        label: Text(
+          'เสร็จสิ้น',
+          style: TextStyle(
+              color: Colors.white,
+              letterSpacing: 1.5,
+              fontSize: 18,
+              fontWeight: FontWeight.bold),
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: new Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () {},
+            ),
+          ],
+        ),
       ),
     );
   }
