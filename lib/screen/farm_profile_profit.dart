@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:v2/style/constants.dart';
 
-import '../style/constants.dart';
-
-class EvalResultProfit extends StatefulWidget {
+class FarmProfileProfit extends StatefulWidget {
   @override
-  _EvalResultProfitState createState() => _EvalResultProfitState();
+  _FarmProfileProfitState createState() => _FarmProfileProfitState();
 }
 
-class _EvalResultProfitState extends State<EvalResultProfit> {
-  String _myActivity;
-
+class _FarmProfileProfitState extends State<FarmProfileProfit> {
   @override
   void initState() {
     super.initState();
@@ -20,51 +17,29 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'พันธุ์ที่แนะนำ',
+          'พันธุ์ข้าว',
           style: kLabelStyle,
         ),
-        SizedBox(
-          height: 10,
-        ),
+        SizedBox(height: 10),
         Container(
-          alignment: Alignment.center,
+          alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          // dropdown below..
-          child: DropdownButton<String>(
-            hint: Padding(
-              padding: const EdgeInsets.only(left: 14),
-              child: Text(
-                'กข 105',
-                style: kHintTextStyle,
+          height: 60,
+          child: TextField(
+            keyboardType: TextInputType.emailAddress,
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              enabled: false,
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.only(
+                left: 14,
               ),
+              hintText: 'กข 15',
+              hintStyle: kHintTextStyle,
             ),
-            value: _myActivity,
-            icon: Icon(Icons.arrow_drop_down),
-            iconSize: 42,
-            underline: SizedBox(),
-            isExpanded: true,
-            onChanged: (String newValue) {
-              setState(() {
-                _myActivity = newValue;
-              });
-            },
-            items: <String>[
-              'กข 105',
-              'กข 10',
-              'กข 15',
-              'กข 20',
-              'กข 30',
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(
-                  value,
-                  style: kTextStyle,
-                ),
-              );
-            }).toList(),
           ),
         ),
+        SizedBox(height: 10),
       ],
     );
   }
@@ -161,7 +136,7 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
           child: TextField(
             enabled: false,
             keyboardType: TextInputType.emailAddress,
-            style: kTextStyle,
+            style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
                 border: InputBorder.none,
                 //contentPadding: EdgeInsets.only(top: 14),
@@ -177,40 +152,9 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
     );
   }
 
-  Widget _buildButton() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 25),
-      width: double.infinity,
-      child: RaisedButton(
-        elevation: 5,
-        onPressed: () =>
-            Navigator.pushNamed(context, '/NewFeed/Eval/Result/Timeline'),
-        padding: EdgeInsets.symmetric(
-          horizontal: 35,
-          vertical: 15,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        color: Colors.white,
-        child: Text(
-          'ต่อไป',
-          style: kTextStyle,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'ผลการวิเคราะห์ผลผลิต',
-          style: kLabelStyle,
-        ),
-        backgroundColor: colorTheam,
-      ),
       body: Stack(
         children: [
           Container(
@@ -226,10 +170,6 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
                 children: [
                   _selectVarieties(),
                   _buildFarmNameTB(),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  _buildButton(),
                 ],
               ),
             ),

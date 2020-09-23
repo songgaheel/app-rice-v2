@@ -1,7 +1,7 @@
-import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:flutter/material.dart';
 
 import '../style/constants.dart';
+import 'create_farm_result_profit.dart';
 
 class EvaluateVarityScreen extends StatefulWidget {
   @override
@@ -10,54 +10,59 @@ class EvaluateVarityScreen extends StatefulWidget {
 
 class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
   String _myActivity;
-  String _myActivityResult;
   final formKey = new GlobalKey<FormState>();
+
+  DateTime _dateTime;
 
   @override
   void initState() {
     super.initState();
-    _myActivity = '';
-    _myActivityResult = '';
+    //_dateTime = DateTime.now();
   }
 
-  Widget _buildFarmNameTB() {
+  Widget _buildOptionDD() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 10),
+        Text(
+          'ตัวเลือกการประเมิน',
+          style: kLabelStyle,
+        ),
+        SizedBox(
+          height: 10,
+        ),
         Container(
           alignment: Alignment.center,
           decoration: kBoxDecorationStyle,
-          child: DropDownFormField(
-            titleText: 'ตัวเลือกการประเมิน',
-            hintText: 'กรุณาเลือก',
+          // dropdown below..
+          child: DropdownButton<String>(
+            hint: Text(
+              'กรุณาเลือก',
+              style: kHintTextStyle,
+            ),
             value: _myActivity,
-            onSaved: (value) {
+            icon: Icon(Icons.arrow_drop_down),
+            iconSize: 42,
+            underline: SizedBox(),
+            isExpanded: true,
+            onChanged: (String newValue) {
               setState(() {
-                _myActivity = value;
+                _myActivity = newValue;
               });
             },
-            onChanged: (value) {
-              setState(() {
-                _myActivity = value;
-              });
-            },
-            dataSource: [
-              {
-                "display": "พันธ์ที่ให้กำไรสูงสุด",
-                "value": "Profit",
-              },
-              {
-                "display": "พันธ์ที่ให้ต้นทุนต่ำสุด",
-                "value": "Cost",
-              },
-              {
-                "display": "พันธุ์ที่เลือก",
-                "value": "Varieties",
-              }
-            ],
-            textField: 'display',
-            valueField: 'value',
+            items: <String>[
+              'พันธ์ที่ให้กำไรสูงสุด',
+              'พันธ์ที่ให้ต้นทุนต่ำสุด',
+              'พันธุ์ที่เลือก',
+            ].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(
+                  value,
+                  style: kTextStyle,
+                ),
+              );
+            }).toList(),
           ),
         ),
       ],
@@ -69,7 +74,54 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'ตำแหน่งที่นา',
+          'วันเริ่มต้นทำนา',
+          style: kLabelStyle,
+        ),
+        SizedBox(height: 10),
+        Container(
+          alignment: Alignment.centerLeft,
+          decoration: kBoxDecorationStyle,
+          height: 100,
+          child: Column(
+            children: [
+              FlatButton(
+                child: Icon(
+                  Icons.calendar_today,
+                  color: Colors.grey,
+                ),
+                onPressed: () {
+                  showDatePicker(
+                          context: context,
+                          initialDate:
+                              _dateTime == null ? DateTime.now() : _dateTime,
+                          firstDate: DateTime(2001),
+                          lastDate: DateTime(2021))
+                      .then((date) {
+                    setState(() {
+                      _dateTime = date;
+                    });
+                  });
+                },
+              ),
+              TextField(
+                enabled: false,
+                keyboardType: TextInputType.datetime,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(top: 6),
+                    hintText: _dateTime == null
+                        ? 'กรุณากำหนดวันเริ่มต้นทำนา'
+                        : _dateTime.toString(),
+                    hintStyle: kHintTextStyle),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 10),
+        SizedBox(height: 10),
+        Text(
+          'ขนาดที่นา',
           style: kLabelStyle,
         ),
         SizedBox(height: 10),
@@ -87,28 +139,61 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
                   Icons.landscape,
                   color: Colors.grey,
                 ),
-                hintText: 'ภาค',
+                hintText: 'ไร่',
                 hintStyle: kHintTextStyle),
           ),
         ),
+        SizedBox(height: 10),
+        SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildFarmLocationDD() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'ตำแหน่งที่นา',
+          style: kLabelStyle,
+        ),
+        SizedBox(
+          height: 10,
+        ),
         Container(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.center,
           decoration: kBoxDecorationStyle,
-          height: 60,
-          child: TextField(
-            keyboardType: TextInputType.emailAddress,
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.landscape,
-                  color: Colors.grey,
+          // dropdown below..
+          child: DropdownButton<String>(
+            hint: Text(
+              'กรุณาเลือกตำแหน่ง',
+              style: kHintTextStyle,
+            ),
+            value: _myActivity,
+            icon: Icon(Icons.arrow_drop_down),
+            iconSize: 42,
+            underline: SizedBox(),
+            isExpanded: true,
+            onChanged: (String newValue) {
+              setState(() {
+                _myActivity = newValue;
+              });
+            },
+            items: <String>[
+              'ภาคกลาง : กรุงเทพมหานคร',
+              'ภาคกลาง : นครนายก',
+              'ภาคกลาง : ปทุมธานี',
+            ].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(
+                  value,
+                  style: kTextStyle,
                 ),
-                hintText: 'จังหวัด',
-                hintStyle: kHintTextStyle),
+              );
+            }).toList(),
           ),
-        )
+        ),
       ],
     );
   }
@@ -117,50 +202,35 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 25),
       width: double.infinity,
-      child: ButtonBar(
-        alignment: MainAxisAlignment.center,
-        children: [
-          RaisedButton(
-            elevation: 5,
-            onPressed: () => Navigator.pop(context),
-            padding: EdgeInsets.symmetric(
-              horizontal: 30,
-              vertical: 15,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            color: Colors.white,
-            child: Text(
-              'เสร็จสิ้น',
-              style: TextStyle(
-                  color: Colors.black,
-                  letterSpacing: 1.5,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-            ),
+      child: RaisedButton(
+        elevation: 5,
+        onPressed: () {
+          if (_myActivity != '') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EvalResultProfit(),
+              ),
+            );
+          }
+          print('ประเมิน');
+        },
+        padding: EdgeInsets.symmetric(
+          horizontal: 40,
+          vertical: 15,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        color: Colors.white,
+        child: Text(
+          'ต่อไป',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
-          RaisedButton(
-            elevation: 5,
-            onPressed: () => Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => Text('ประเมิณ'))),
-            padding: EdgeInsets.symmetric(
-              horizontal: 40,
-              vertical: 15,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            color: Colors.white,
-            child: Text(
-              'ประเมิน',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -169,28 +239,15 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ประเมินพันธุ์'),
+        title: Text(
+          'วิเคราะห์พันธุ์ข้าว',
+          style: kLabelStyle,
+        ),
         backgroundColor: colorTheam,
       ),
       body: Stack(
         children: [
-          Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white,
-                  Colors.white,
-                  Colors.white,
-                  Colors.white,
-                ],
-                stops: [0.1, 0.4, 0.7, 0.9],
-              ),
-            ),
-          ),
+          SizedBox(height: 10),
           Container(
             height: double.infinity,
             child: SingleChildScrollView(
@@ -202,20 +259,10 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'ประเมิณพันธุ์',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  _buildFarmNameTB(),
-                  SizedBox(
-                    height: 30,
-                  ),
+                  _buildOptionDD(),
+                  SizedBox(height: 10),
                   _buildFarmLocationTB(),
+                  _buildFarmLocationDD(),
                   _buildButton(),
                 ],
               ),

@@ -1,4 +1,3 @@
-import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:flutter/material.dart';
 
 import '../style/constants.dart';
@@ -15,47 +14,54 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
   @override
   void initState() {
     super.initState();
-    _myActivity = '';
   }
 
   Widget _buildFarmLocationDD() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 10),
+        Text(
+          'ตำแหน่งที่นา',
+          style: kLabelStyle,
+        ),
+        SizedBox(
+          height: 10,
+        ),
         Container(
           alignment: Alignment.center,
           decoration: kBoxDecorationStyle,
-          child: DropDownFormField(
-            titleText: 'เลือกตำแหน่งที่นา',
-            hintText: 'กรุณาเลือก',
+          // dropdown below..
+          child: DropdownButton<String>(
+            hint: Padding(
+              padding: EdgeInsets.only(left: 14.0),
+              child: Text(
+                'กรุณาเลือกตำแหน่ง',
+                style: kHintTextStyle,
+              ),
+            ),
             value: _myActivity,
-            onSaved: (value) {
+            icon: Icon(Icons.arrow_drop_down),
+            iconSize: 42,
+            underline: SizedBox(),
+            isExpanded: true,
+            onChanged: (String newValue) {
               setState(() {
-                _myActivity = value;
+                _myActivity = newValue;
               });
             },
-            onChanged: (value) {
-              setState(() {
-                _myActivity = value;
-              });
-            },
-            dataSource: [
-              {
-                "display": "ภาคกลาง : กรุงเทพมหานคร",
-                "value": "BKK",
-              },
-              {
-                "display": "ภาคกลาง : นครนายก",
-                "value": "NKN",
-              },
-              {
-                "display": "ภาคกลาง : ปทุมธานี",
-                "value": "PTT",
-              },
-            ],
-            textField: 'display',
-            valueField: 'value',
+            items: <String>[
+              'ภาคกลาง : กรุงเทพมหานคร',
+              'ภาคกลาง : นครนายก',
+              'ภาคกลาง : ปทุมธานี',
+            ].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(
+                  value,
+                  style: kTextStyle,
+                ),
+              );
+            }).toList(),
           ),
         ),
       ],
@@ -77,7 +83,7 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
           height: 60,
           child: TextField(
             keyboardType: TextInputType.name,
-            style: TextStyle(color: Colors.white),
+            style: kTextStyle,
             decoration: InputDecoration(
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.only(top: 14),
@@ -101,7 +107,7 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
           height: 60,
           child: TextField(
             keyboardType: TextInputType.number,
-            style: TextStyle(color: Colors.white),
+            style: kTextStyle,
             decoration: InputDecoration(
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.only(top: 14),
@@ -121,30 +127,25 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 25),
       width: double.infinity,
-      child: ButtonBar(
-        alignment: MainAxisAlignment.center,
-        children: [
-          RaisedButton(
-            elevation: 5,
-            onPressed: () => Navigator.pushNamed(context, '/NewFeed/Eval'),
-            padding: EdgeInsets.symmetric(
-              horizontal: 35,
-              vertical: 15,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            color: Colors.white,
-            child: Text(
-              'ต่อไป',
-              style: TextStyle(
-                  color: Colors.black,
-                  letterSpacing: 1.5,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
+      child: RaisedButton(
+        elevation: 5,
+        onPressed: () => Navigator.pushNamed(context, '/NewFeed/Eval'),
+        padding: EdgeInsets.symmetric(
+          horizontal: 35,
+          vertical: 15,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        color: Colors.white,
+        child: Text(
+          'ต่อไป',
+          style: TextStyle(
+              color: Colors.black,
+              letterSpacing: 1.5,
+              fontSize: 18,
+              fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -153,50 +154,43 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('สร้างที่นาใหม่'),
+        title: Text(
+          'สร้างที่นาใหม่',
+          style: kLabelStyle,
+        ),
         backgroundColor: colorTheam,
         actions: [
           IconButton(
             icon: Icon(Icons.save),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AlertDialog(
-                    title: Text('บันทึกข้อมูลที่นา'),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: Text('ยืนยัน'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text(
+                    'บันทึกข้อมูลที่นา',
+                    style: kLabelStyle,
                   ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text(
+                        'ยืนยัน',
+                        style: kTextStyle,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ),
               );
             },
-          )
+          ),
         ],
       ),
       body: Stack(
         children: [
-          Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white,
-                  Colors.white,
-                  Colors.white,
-                  Colors.white,
-                ],
-                stops: [0.1, 0.4, 0.7, 0.9],
-              ),
-            ),
+          SizedBox(
+            height: 30,
           ),
           Container(
             height: double.infinity,
@@ -210,18 +204,6 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildFarmNameTB(),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ตำแหน่งที่นา',
-                        style: kLabelStyle,
-                      ),
-                    ],
-                  ),
                   SizedBox(height: 10),
                   _buildFarmLocationDD(),
                   _buildButton(),

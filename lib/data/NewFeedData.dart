@@ -54,7 +54,7 @@ List<FarmFeed> feed = [
     date: '01 มกราคม 2564',
     content: '',
     activity: ['ตรวจระดับน้ำ', 'ตรวจและกำจัดวัชพืช'],
-    bug: [''],
+    bug: [],
     disease: diseases,
   ),
 ];

@@ -11,7 +11,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('การแจ้งเตือน'),
+          title: Text(
+            'การแจ้งเตือน',
+            style: kLabelStyle,
+          ),
           backgroundColor: colorTheam,
         ),
         body: ListView.builder(
@@ -21,18 +24,36 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 child: Container(
                   height: 150,
                   color: Colors.white,
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                        leading: Icon(
-                          Icons.location_on,
-                          size: 40,
+                  child: FlatButton(
+                    onPressed: () {
+                      print('คลิ๊ก  $i');
+                      Navigator.pushNamed(context, '/Account/Farm/Profile');
+                    },
+                    child: Column(
+                      children: <Widget>[
+                        ListTile(
+                          leading: Icon(
+                            Icons.location_on,
+                            size: 40,
+                          ),
+                          title: Text(
+                            'ที่นาที่ $i',
+                            style: kTextStyle,
+                          ),
+                          subtitle: Text(
+                            '01 มกราคม 2564',
+                            style: kTextStyle,
+                          ),
                         ),
-                        title: Text('$i'),
-                        subtitle: Text('Date Month Year'),
-                      ),
-                      Text('มีกิจกรรมทั้งหมด 5 กิจกรรม')
-                    ],
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'มีกิจกรรมทั้งหมด $i กิจกรรม',
+                            style: kTextStyle,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

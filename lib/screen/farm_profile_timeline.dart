@@ -1,69 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:timeline_list/timeline.dart';
 import 'package:timeline_list/timeline_model.dart';
-import '../data/TimelineData.dart';
-import '../style/constants.dart';
-import 'main_screen.dart';
+import 'package:v2/data/TimelineData.dart';
+import 'package:v2/style/constants.dart';
 
-class TimelinePage extends StatefulWidget {
+class FarmTimeline extends StatefulWidget {
   final Modeltimeline modeltimeline;
 
-  const TimelinePage({Key key, this.modeltimeline}) : super(key: key);
+  const FarmTimeline({Key key, this.modeltimeline}) : super(key: key);
   @override
-  _TimelinePageState createState() => _TimelinePageState();
+  _FarmTimelineState createState() => _FarmTimelineState();
 }
 
-class _TimelinePageState extends State<TimelinePage> {
-  void _resetAndOpenPage() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (BuildContext context) => MainScreen()),
-      ModalRoute.withName('/home'),
-    );
-  }
-
+class _FarmTimelineState extends State<FarmTimeline> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'ผลการวิเคราะห์การปลูก',
-          style: kLabelStyle,
-        ),
-        backgroundColor: colorTheam,
-      ),
       body: timelineModel(TimelinePosition.Left),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton.extended(
-        elevation: 5,
-        onPressed: () {
-          _resetAndOpenPage();
-        },
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        icon: Icon(Icons.check),
-        label: Text(
-          'เสร็จสิ้น',
-          style: TextStyle(
-              color: Colors.white,
-              letterSpacing: 1.5,
-              fontSize: 20,
-              fontWeight: FontWeight.bold),
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.share),
-              onPressed: () {},
-            ),
-          ],
-        ),
-      ),
     );
   }
 

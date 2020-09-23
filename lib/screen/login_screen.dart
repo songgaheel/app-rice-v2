@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
           height: 60,
           child: TextField(
             keyboardType: TextInputType.emailAddress,
-            style: TextStyle(color: Colors.white),
+            style: kTextStyle,
             decoration: InputDecoration(
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.only(top: 14),
@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
           height: 60,
           child: TextField(
             keyboardType: TextInputType.phone,
-            style: TextStyle(color: Colors.white),
+            style: kTextStyle,
             decoration: InputDecoration(
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.only(top: 14),
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintText: 'หมายเลขโทรศัพท์',
                 hintStyle: kHintTextStyle),
           ),
-        )
+        ),
       ],
     );
   }
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: EdgeInsets.only(right: 0),
         child: Text(
           'ลืมข้อมูลเข้าสู่ระบบ',
-          style: kLabelStyle,
+          style: kTextStyle,
         ),
       ),
     );
@@ -103,11 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
         color: Colors.white,
         child: Text(
           'เข้าสู่ระบบ',
-          style: TextStyle(
-              color: Colors.black,
-              letterSpacing: 1.5,
-              fontSize: 18,
-              fontWeight: FontWeight.bold),
+          style: kTextStyle,
         ),
       ),
     );
@@ -128,11 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
         color: Colors.white,
         child: Text(
           'ลงทะเบียน',
-          style: TextStyle(
-              color: Colors.black,
-              letterSpacing: 1.5,
-              fontSize: 18,
-              fontWeight: FontWeight.bold),
+          style: kTextStyle,
         ),
       ),
     );
@@ -141,26 +133,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightGreen,
+      backgroundColor: Colors.green[400],
       body: Stack(
         children: [
-          Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white70,
-                  Colors.white70,
-                  Colors.white70,
-                  Colors.white70,
-                ],
-                stops: [0.1, 0.4, 0.7, 0.9],
-              ),
-            ),
-          ),
           Container(
             height: double.infinity,
             child: SingleChildScrollView(
