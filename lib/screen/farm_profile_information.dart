@@ -2,16 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:v2/style/constants.dart';
 
 class FarmInformaion extends StatefulWidget {
+  final dynamic farmName;
+  final dynamic farmLocationAddress;
+  final dynamic farmSize;
+
+  const FarmInformaion(
+      {Key key, this.farmName, this.farmLocationAddress, this.farmSize})
+      : super(key: key);
   @override
   _FarmInformaionState createState() => _FarmInformaionState();
 }
 
 class _FarmInformaionState extends State<FarmInformaion> {
   final formKey = new GlobalKey<FormState>();
+  dynamic _farmName;
+  dynamic _farmLocationAddress;
+  dynamic _farmSize;
 
   @override
   void initState() {
     super.initState();
+    _farmName = widget.farmName;
+    _farmLocationAddress = widget.farmLocationAddress;
+    _farmSize = widget.farmSize;
   }
 
   Widget _buildFarmLocationDD() {
@@ -36,7 +49,7 @@ class _FarmInformaionState extends State<FarmInformaion> {
               contentPadding: EdgeInsets.only(
                 left: 14,
               ),
-              hintText: 'ภาคกลาง : กรุงเทพ',
+              hintText: _farmLocationAddress,
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -70,7 +83,7 @@ class _FarmInformaionState extends State<FarmInformaion> {
                   Icons.landscape,
                   color: Colors.grey,
                 ),
-                hintText: 'นาองครักษ์ นครนายก',
+                hintText: _farmName,
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -95,7 +108,7 @@ class _FarmInformaionState extends State<FarmInformaion> {
                   Icons.landscape,
                   color: Colors.grey,
                 ),
-                hintText: '11.1 ไร่',
+                hintText: _farmSize.toString(), //
                 hintStyle: kHintTextStyle),
           ),
         )

@@ -1,18 +1,142 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:v2/data/EvalData.dart';
+import 'package:v2/data/EvalResultData.dart';
+import 'package:v2/data/apiData.dart';
 
 import '../style/constants.dart';
+import 'create_farm_result_timeline.dart';
 
 class EvalResultProfit extends StatefulWidget {
+  //result
+  final dynamic result;
+  //evaluate data
+  final DateTime dateTime;
+  final dynamic options; // code
+  final dynamic varietieselected; //code
+
+  // Farm data
+  final String uid;
+  final dynamic farm;
+  final String farmName;
+  final double farmSize;
+  final String formattedAddress;
+  final dynamic province;
+  final dynamic latt; // or String
+  final dynamic long; // or String
+
+  const EvalResultProfit({
+    Key key,
+    this.result,
+    this.farmName,
+    this.dateTime,
+    this.farmSize,
+    this.uid,
+    this.farm,
+    this.formattedAddress,
+    this.province,
+    this.latt,
+    this.long,
+    this.options,
+    this.varietieselected,
+  }) : super(key: key);
   @override
   _EvalResultProfitState createState() => _EvalResultProfitState();
 }
 
 class _EvalResultProfitState extends State<EvalResultProfit> {
-  String _myActivity;
+  var _cost;
+  var _product;
+  var _price;
+  var _profit;
+  var _costS;
+  var _productS;
+  var _priceS;
+  var _profitS;
+  dynamic _result;
+  dynamic selectedVarieties;
+  String _options;
+  String _varietieselected;
+  dynamic _varieties;
+  dynamic _id;
+  Map<int, String> _varietie = {0: 'เลือกพันธ์ข้าว'};
+  Map<String, int> _varietieCode = {'เลือกพันธ์ข้าว': 0};
+  DateTime _dateTime;
+
+  Map _optionCode = {
+    'พันธุ์ข้าวที่ให้กำไรสูงสุด': 1,
+    'พันธุ์ข้าวที่ให้ต้นทุนที่ดีที่สุด': 2,
+    'เลือกพันธุ์ข้าวเอง': 3
+  };
+
+  Map provinceCode = {
+    "กรุงเทพมหานคร": 1,
+    "นนทบุรี": 2,
+    "พระนครศรีอยุธยา": 3,
+    "ฉะเชิงเทรา": 4,
+    "ราชบุรี": 5,
+    "นครปฐม": 6,
+  };
+
+  Map<String, Icon> _status = {
+    "1": Icon(
+      Icons.thumb_down,
+      color: Colors.redAccent,
+    ),
+    "2": Icon(
+      Icons.thumbs_up_down,
+      color: Colors.amber,
+    ),
+    "3": Icon(
+      Icons.thumb_up,
+      color: Colors.green,
+    ),
+  };
+
+  String _uid;
+  dynamic _farm;
+  String _farmName;
+  double _farmSize;
+  String _formattedAddress;
+  dynamic _province;
+  dynamic _latt; // or String
+  dynamic _long; // or String
 
   @override
   void initState() {
     super.initState();
+    print('create farm profit result screen');
+    _result = widget.result;
+    _varieties = _result[0]['name'];
+    _id = _result[0]['ID'];
+    _cost = _result[0]['cost']['value'];
+    _product = _result[0]['product']['value'];
+    _price = _result[0]['price']['value'];
+    _profit = _result[0]['profit']['value'];
+    _costS = _result[0]['cost']['status'];
+    _productS = _result[0]['product']['status'];
+    _priceS = _result[0]['price']['status'];
+    _profitS = _result[0]['profit']['status'];
+    selectedVarieties = _result[0];
+
+    /*print(_varieties);
+    print(_cost);
+    print(_product);
+    print(_price);
+    print(_profit);*/
+
+    _farmName = widget.farmName;
+    _farmSize = widget.farmSize;
+    _uid = widget.uid;
+    _farm = widget.farm;
+    _formattedAddress = widget.formattedAddress;
+    _province = widget.province;
+    _latt = widget.latt; // or String
+    _long = widget.long; // or String
+    _uid = widget.uid;
+    _dateTime = widget.dateTime;
   }
 
   Widget _selectVarieties() {
@@ -34,35 +158,48 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
             hint: Padding(
               padding: const EdgeInsets.only(left: 14),
               child: Text(
-                'กข 105',
+                _varieties,
                 style: kHintTextStyle,
               ),
             ),
-            value: _myActivity,
+            value: _varieties,
             icon: Icon(Icons.arrow_drop_down),
             iconSize: 42,
             underline: SizedBox(),
             isExpanded: true,
             onChanged: (String newValue) {
               setState(() {
-                _myActivity = newValue;
+                _varieties = newValue;
+                for (var i = 0; i < _result.length; i++) {
+                  if (_result[i]['name'] == _varieties) {
+                    _id = _result[i]['ID'];
+                    _cost = _result[i]['cost']['value'];
+                    _product = _result[i]['product']['value'];
+                    _price = _result[i]['price']['value'];
+                    _profit = _result[i]['profit']['value'];
+                    _costS = _result[i]['cost']['status'];
+                    _productS = _result[i]['product']['status'];
+                    _priceS = _result[i]['price']['status'];
+                    _profitS = _result[i]['profit']['status'];
+                    selectedVarieties = _result[i];
+                  } else {}
+                }
               });
             },
-            items: <String>[
-              'กข 105',
-              'กข 10',
-              'กข 15',
-              'กข 20',
-              'กข 30',
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(
-                  value,
-                  style: kTextStyle,
-                ),
-              );
-            }).toList(),
+            items: _result.map<DropdownMenuItem<String>>(
+              (value) {
+                return DropdownMenuItem<String>(
+                  value: value['name'],
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 14),
+                    child: Text(
+                      value['name'],
+                      style: kTextStyle,
+                    ),
+                  ),
+                );
+              },
+            ).toList(),
           ),
         ),
       ],
@@ -90,11 +227,8 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
                 enabled: false,
                 border: InputBorder.none,
                 //contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.thumb_down,
-                  color: Colors.redAccent,
-                ),
-                hintText: '1000 บาท/ไร่',
+                prefixIcon: _status[_costS],
+                hintText: _cost.toString() + ' บาท/ไร่',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -115,11 +249,8 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
                 enabled: false,
                 border: InputBorder.none,
                 //contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.thumbs_up_down,
-                  color: Colors.amber,
-                ),
-                hintText: '800 กก./ไร่',
+                prefixIcon: _status[_productS],
+                hintText: _product.toString() + ' กก./ไร่',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -140,11 +271,8 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
             decoration: InputDecoration(
                 border: InputBorder.none,
                 //contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.thumb_up,
-                  color: Colors.green,
-                ),
-                hintText: '2000 บาท/ตัน',
+                prefixIcon: _status[_priceS],
+                hintText: _price.toString() + ' บาท/ตัน',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -165,11 +293,8 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
             decoration: InputDecoration(
                 border: InputBorder.none,
                 //contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.thumbs_up_down,
-                  color: Colors.amber,
-                ),
-                hintText: '600 บาท/ไร่',
+                prefixIcon: _status[_profitS],
+                hintText: _profit.toString() + ' บาท/ไร่',
                 hintStyle: kHintTextStyle),
           ),
         )
@@ -183,8 +308,37 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
       width: double.infinity,
       child: RaisedButton(
         elevation: 5,
-        onPressed: () =>
-            Navigator.pushNamed(context, '/NewFeed/Eval/Result/Timeline'),
+        onPressed: () {
+          //print(selectedVarieties);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TimelinePage(
+                result: selectedVarieties,
+                uid: _uid,
+                farmName: _farmName,
+                farm: _farm,
+                farmSize: _farmSize,
+                formattedAddress: _formattedAddress,
+                province: _province,
+                latt: _latt,
+                long: _long,
+                dateTime: _dateTime,
+                options: _options,
+                cost: _cost,
+                product: _product,
+                price: _price,
+                profit: _profit,
+              ),
+            ),
+          );
+
+          /*Navigator.pushNamed(
+            context,
+            '/NewFeed/Eval/Result/Timeline',
+            arguments: selectedVarieties,
+          );*/
+        },
         padding: EdgeInsets.symmetric(
           horizontal: 35,
           vertical: 15,

@@ -1,15 +1,59 @@
+import 'dart:convert';
+
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:v2/data/apiData.dart';
+
 import '../style/constants.dart';
 
 import 'main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
 class LoginScreen extends StatefulWidget {
+  final APIdata ip_host;
+
+  const LoginScreen({Key key, this.ip_host}) : super(key: key);
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  //bool _remenberMe = false;
+  SharedPreferences logindata;
+  var phonenumber;
+  var password;
+  var status;
+
+  user_login(String phone, String password) async {
+    print(phone);
+    print(password);
+    var ip = ip_host.host;
+    var url = ip + 'api/user/login';
+    Map<String, String> headers = {
+      "Content-type": "application/json; charset=UTF-8"
+    };
+    var json = convert.jsonEncode(<String, String>{
+      "phonenumber": phone,
+      "password": password.toString(),
+    });
+
+    print(json);
+    final http.Response response = await http.post(
+      url,
+      headers: headers,
+      body: json,
+    );
+
+    if (response.statusCode == 200) {
+      var res = convert.jsonDecode(response.body);
+      print(res);
+      return res;
+    } else {
+      //print('Request failed with status: ${response.statusCode}.');
+    }
+  }
+
   Widget _buildUserfrom() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,17 +68,21 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: kBoxDecorationStyle,
           height: 60,
           child: TextField(
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.text,
             style: kTextStyle,
             decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: 14),
+                contentPadding: EdgeInsets.only(top: 8),
                 prefixIcon: Icon(
                   Icons.vpn_key,
                   color: Colors.grey,
                 ),
                 hintText: 'กรอกรหัสผ่าน',
                 hintStyle: kHintTextStyle),
+            obscureText: true,
+            onChanged: (value) {
+              password = value;
+            },
           ),
         )
       ],
@@ -59,13 +107,16 @@ class _LoginScreenState extends State<LoginScreen> {
             style: kTextStyle,
             decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: 14),
+                contentPadding: EdgeInsets.only(top: 8),
                 prefixIcon: Icon(
                   Icons.phone,
                   color: Colors.grey,
                 ),
                 hintText: 'หมายเลขโทรศัพท์',
                 hintStyle: kHintTextStyle),
+            onChanged: (value) {
+              phonenumber = value;
+            },
           ),
         ),
       ],
@@ -92,10 +143,24 @@ class _LoginScreenState extends State<LoginScreen> {
       width: double.infinity,
       child: RaisedButton(
         elevation: 5,
-        onPressed: () => Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MainScreen()),
-        ),
+        onPressed: () async {
+          status = await user_login(phonenumber, password);
+
+          if ((status['status'] == 'ok')) {
+            var initData = await _init_data();
+            print(initData);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainScreen(
+                  initData: initData,
+                ),
+              ),
+            );
+          } else {
+            print(status['status']);
+          }
+        },
         padding: EdgeInsets.all(15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
@@ -109,14 +174,60 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  _init_data() async {
+    var uid = await _uidkeeper();
+    var _initData = _get_init_data(uid);
+    return _initData;
+  }
+
+  _get_init_data(String uid) async {
+    var ip = ip_host.host;
+    var url = ip + 'api/init/data';
+    Map<String, String> headers = {
+      "Content-type": "application/json; charset=UTF-8"
+    };
+    var json = jsonEncode(<String, dynamic>{
+      "_id": uid,
+    });
+
+    //print(json);
+    final Response response = await post(
+      url,
+      headers: headers,
+      body: json,
+    );
+
+    if (response.statusCode == 200) {
+      var res = jsonDecode(response.body);
+      //print(res);
+      return res;
+    } else {
+      //print('Request failed with status: ${response.statusCode}.');
+    }
+  }
+
+  _uidkeeper() async {
+    logindata = await SharedPreferences.getInstance();
+    logindata.setString('uid', status['uid']);
+    var uid = logindata.getString('uid');
+    print(uid);
+    return uid;
+  }
+
   Widget _buildRegisterButton() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 25),
       width: double.infinity,
       child: RaisedButton(
         elevation: 5,
-        onPressed: () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => MainScreen())),
+        onPressed: () {
+          Navigator.pushNamed(context, '/registration');
+          //apitest();
+          /*Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MainScreen()),
+          );*/
+        },
         padding: EdgeInsets.all(15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),

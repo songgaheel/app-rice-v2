@@ -2,6 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:v2/style/constants.dart';
 
 class UserScreen extends StatefulWidget {
+  final dynamic userID;
+  final dynamic userName;
+  final dynamic userAddress;
+  final dynamic userPhonenumber;
+
+  const UserScreen({
+    Key key,
+    this.userID,
+    this.userName,
+    this.userAddress,
+    this.userPhonenumber,
+  }) : super(key: key);
   @override
   _UserScreenState createState() => _UserScreenState();
 }
@@ -9,9 +21,18 @@ class UserScreen extends StatefulWidget {
 class _UserScreenState extends State<UserScreen> {
   final formKey = new GlobalKey<FormState>();
 
+  dynamic _userID;
+  dynamic _userName;
+  dynamic _userAddress;
+  dynamic _userPhonenumber;
+
   @override
   void initState() {
     super.initState();
+    _userID = widget.userID;
+    _userName = widget.userName;
+    _userAddress = widget.userAddress;
+    _userPhonenumber = widget.userPhonenumber;
   }
 
   Widget _buildFarmLocationDD() {
@@ -36,7 +57,7 @@ class _UserScreenState extends State<UserScreen> {
               contentPadding: EdgeInsets.only(
                 left: 14,
               ),
-              hintText: 'กรุงเทพ หนองจอก',
+              hintText: _userAddress == null ? '' : _userAddress,
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -66,7 +87,7 @@ class _UserScreenState extends State<UserScreen> {
             decoration: InputDecoration(
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.only(left: 14),
-                hintText: 'นายข้าว หอมมะลิ',
+                hintText: _userName,
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -86,7 +107,7 @@ class _UserScreenState extends State<UserScreen> {
             decoration: InputDecoration(
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.only(left: 14),
-                hintText: '0889997777',
+                hintText: _userPhonenumber,
                 hintStyle: kHintTextStyle),
           ),
         )

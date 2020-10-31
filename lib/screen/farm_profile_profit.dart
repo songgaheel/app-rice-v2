@@ -2,14 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:v2/style/constants.dart';
 
 class FarmProfileProfit extends StatefulWidget {
+  final dynamic evalproduct;
+  final dynamic varieties;
+
+  const FarmProfileProfit({Key key, this.evalproduct, this.varieties})
+      : super(key: key);
   @override
   _FarmProfileProfitState createState() => _FarmProfileProfitState();
 }
 
 class _FarmProfileProfitState extends State<FarmProfileProfit> {
+  dynamic _costV;
+  dynamic _productV;
+  dynamic _priceV;
+  dynamic _profitV;
+  dynamic _costS;
+  dynamic _productS;
+  dynamic _priceS;
+  dynamic _profitS;
+  dynamic _varietiesName;
+
   @override
   void initState() {
     super.initState();
+    _costV = widget.evalproduct['cost']['value'];
+    _productV = widget.evalproduct['product']['value'];
+    _priceV = widget.evalproduct['price']['value'];
+    _profitV = widget.evalproduct['profit']['value'];
+    //_costS = widget.evalproduct['cost']['status'];
+    //_productS = widget.evalproduct['product']['status'];
+    //_priceS = widget.evalproduct['price']['status'];
+    //_profitS = widget.evalproduct['profit']['status'];
+    _varietiesName = widget.varieties;
+    print(widget.evalproduct);
+    print(_costV);
+    print(_productV);
+    print(_priceV);
+    print(_profitV);
   }
 
   Widget _selectVarieties() {
@@ -34,7 +63,7 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
               contentPadding: EdgeInsets.only(
                 left: 14,
               ),
-              hintText: 'กข 15',
+              hintText: _varietiesName,
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -64,12 +93,14 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
             decoration: InputDecoration(
                 enabled: false,
                 border: InputBorder.none,
-                //contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.thumb_down,
-                  color: Colors.redAccent,
-                ),
-                hintText: '1000 บาท/ไร่',
+                contentPadding: EdgeInsets.only(left: 14),
+                /*prefixIcon: Icon(
+                  Icons.thumbs_up_down,
+                  color: Colors.amber,
+                ),*/
+                hintText: _costV == -1
+                    ? 'ยังไม่ได้ดำเนินการ'
+                    : _costV.toString() + ' บาท/ไร่',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -89,12 +120,14 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
             decoration: InputDecoration(
                 enabled: false,
                 border: InputBorder.none,
-                //contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
+                contentPadding: EdgeInsets.only(left: 14),
+                /*prefixIcon: Icon(
                   Icons.thumbs_up_down,
                   color: Colors.amber,
-                ),
-                hintText: '800 กก./ไร่',
+                ),*/
+                hintText: _productV == -1
+                    ? 'ยังไม่ได้ดำเนินการ'
+                    : _productV.toString() + ' กก./ไร่',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -114,12 +147,14 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
                 border: InputBorder.none,
-                //contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.thumb_up,
-                  color: Colors.green,
-                ),
-                hintText: '2000 บาท/ตัน',
+                contentPadding: EdgeInsets.only(left: 14),
+                /*prefixIcon: Icon(
+                  Icons.thumbs_up_down,
+                  color: Colors.amber,
+                ),*/
+                hintText: _priceV == -1
+                    ? 'ยังไม่ได้ดำเนินการ'
+                    : _priceV.toString() + ' บาท/ตัน',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -139,12 +174,14 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
                 border: InputBorder.none,
-                //contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
+                contentPadding: EdgeInsets.only(left: 14),
+                /*prefixIcon: Icon(
                   Icons.thumbs_up_down,
                   color: Colors.amber,
-                ),
-                hintText: '600 บาท/ไร่',
+                ),*/
+                hintText: _profitV == -1
+                    ? 'ยังไม่ได้ดำเนินการ'
+                    : _profitV.toString() + ' บาท/ไร่',
                 hintStyle: kHintTextStyle),
           ),
         )
