@@ -4,4 +4,4 @@ class APIdata {
   APIdata({this.host});
 }
 
-APIdata ip_host = APIdata(host: 'http://192.168.1.104:3000/');
+APIdata ip_host = APIdata(host: 'http://150.95.88.242:4444/');
