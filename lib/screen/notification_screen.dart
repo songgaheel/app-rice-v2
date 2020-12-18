@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:v2/data/apiData.dart';
 import 'package:v2/screen/farm_profile_screen.dart';
 import 'package:v2/style/constants.dart';
+import 'package:buddhist_datetime_dateformat/buddhist_datetime_dateformat.dart';
 
 class NotificationScreen extends StatefulWidget {
   final dynamic notis;
@@ -16,68 +17,38 @@ class NotificationScreen extends StatefulWidget {
   _NotificationScreenState createState() => _NotificationScreenState();
 }
 
-Map<int, String> _codes = {
-  1: 'เริ่มปลูกข้าว',
-  2: 'เก็บเกี่ยวข้าว',
-  3: 'ให้น้ำ 3 cm',
-  4: 'ให้น้ำ 7 cm',
-  5: 'ให้น้ำ 10 cm',
-  6: 'ระบายน้ำออก',
-  7: 'กำจัดวัชพืช',
-  8: 'ตัดพันธ์ปน',
-  9: 'ใส่ปุ๋ยสูตร 16-20-0',
-  10: 'ใส่ปุ๋ยสูตร 21-0-0',
-  11: 'ระวัโรคไหม้ข้าว',
-  12: 'ระวังเพลี้ยกระโดดสีน้ำตาล',
-  13: 'เตือนภัยแล้ง',
-  14: 'เตือนภัยน้ำท่วม',
-};
-
 class _NotificationScreenState extends State<NotificationScreen> {
   dynamic _notics;
-  var _noti = List();
-  var _aleart = false;
-  var _aleartContent = List();
+  var _activity;
+  var _warning;
+
+  var formatter = DateFormat('dd MMMM yyyy', 'th');
   SharedPreferences logindata;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _notics = widget.notis;
-    var today = DateTime.now();
-    print(_notics);
-    for (var i = 0; i < _notics.length; i++) {
-      var notiDate = DateTime.parse(_notics[i]['feedDate']);
-      print(today);
-      print(notiDate);
-      print(today.compareTo(notiDate));
-      if (today.compareTo(notiDate) == 0) {
-        print('today feed');
-        _noti.add(_notics[i]);
-        _aleart = true;
-      } else {
-        for (var j = 0; j < _notics[i]['content'].length; j++) {
-          if (_notics[i]['content'][j] > 10) {
-            print(_notics[i]['content'][j]);
-            _aleartContent.add(_notics[i]['content'][j]);
-            _noti.add(_notics[i]);
-            break;
-          }
-        }
-      }
-    }
-    print(_noti);
+    _activity = _notics['activities'];
+    _warning = _notics['warning'];
+    print('avtivities');
+    print(_activity);
+    print('warning');
+    print(_warning);
+    if (_activity[0]['fname'] == null && _warning[0]['fname'] == null)
+      print(true);
+    print(_activity[0]['fname']);
+    print(_warning[0]['fname']);
   }
 
-  farm_information(dynamic uid, dynamic farmname) async {
+  farm_information(dynamic fid) async {
     var ip = ip_host.host;
-    var url = ip + 'api/farm/information/name';
+    var url = ip + 'api/farm/information';
     Map<String, String> headers = {
       "Content-type": "application/json; charset=UTF-8"
     };
     var json = jsonEncode(<String, String>{
-      "uid": uid,
-      "farmname": farmname,
+      "fid": fid,
     });
 
     print('json');
@@ -96,35 +67,21 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
-  _uidkeeper() async {
-    logindata = await SharedPreferences.getInstance();
-    var uid = logindata.getString('uid');
-    print(uid);
-    return uid;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'การแจ้งเตือน',
-          style: kLabelStyle,
-        ),
-        backgroundColor: colorTheam,
-      ),
-      body: ListView.builder(
-        itemCount: _noti.length,
-        itemBuilder: (context, i) {
+  Widget _notiActivity() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: _activity.length,
+      itemBuilder: (context, i) {
+        if (_activity[i]['activityLenght'] != 0) {
           return Card(
             child: Container(
-              height: 150,
+              height: 120,
               color: Colors.white,
               child: FlatButton(
                 onPressed: () async {
                   print('คลิ๊ก  $i');
-                  var uid = await _uidkeeper();
-                  var farmInfo = await farm_information(uid, _noti[i]['name']);
+
+                  var farmInfo = await farm_information(_activity[i]['fid']);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -138,25 +95,23 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   children: <Widget>[
                     ListTile(
                       leading: Icon(
-                        Icons.location_on,
+                        Icons.landscape,
                         size: 40,
                       ),
                       title: Text(
-                        "ที่นา : " + _noti[i]['name'],
+                        _activity[i]['fname'],
                         style: kTextStyle,
                       ),
                       subtitle: Text(
-                        DateFormat('dd MMMM yyyy')
-                            .format(DateTime.parse(_noti[i]['feedDate'])),
+                        formatter.formatInBuddhistCalendarThai(
+                            DateTime.parse(_activity[i]['activitiesDate'])),
                         style: kTextStyle,
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8.0),
                       child: Text(
-                        (i == 0 && _aleart)
-                            ? 'มีกิจกรรมทั้งหมด ${_noti[i]['content'].length} กิจกรรม'
-                            : _codes[_aleartContent[i]],
+                        'มีกิจกรรมทั้งหมด ${_activity[i]['activityLenght']} กิจกรรม',
                         style: kTextStyle,
                       ),
                     ),
@@ -165,7 +120,111 @@ class _NotificationScreenState extends State<NotificationScreen> {
               ),
             ),
           );
-        },
+        } else {
+          return SizedBox.shrink();
+        }
+      },
+    );
+  }
+
+  Widget _notiWarning() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: _warning.length,
+      itemBuilder: (context, i) {
+        if (_warning[i]['activityLenght'] != 0) {
+          return Card(
+            child: Container(
+              height: 120,
+              color: Colors.white,
+              child: FlatButton(
+                onPressed: () async {
+                  print('คลิ๊ก  $i');
+
+                  var farmInfo = await farm_information(_warning[i]['fid']);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FarmProfileScreen(
+                        farm: farmInfo,
+                      ),
+                    ),
+                  );
+                },
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(
+                        Icons.warning,
+                        size: 40,
+                        color: Colors.amber,
+                      ),
+                      title: Text(
+                        _warning[i]['fname'],
+                        style: kTextStyle,
+                      ),
+                      subtitle: Text(
+                        formatter.formatInBuddhistCalendarThai(
+                            DateTime.parse(_warning[i]['activitiesDate'])),
+                        style: kTextStyle,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        'มีการเตือนภัย ${_warning[i]['warningLenght']} เหตุการณ์',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        } else {
+          return SizedBox.shrink();
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[300],
+      appBar: AppBar(
+        title: Text(
+          'การแจ้งเตือน',
+          style: kLabelStyle,
+        ),
+        backgroundColor: colorTheam,
+      ),
+      body: Column(
+        //scrollDirection: Axis.vertical,
+        children: [
+          if (_activity != null)
+            Text(
+              'กิจกรรมทั้งหมด ${_activity.length}',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+          if (_activity != null)
+            Expanded(child: Scrollbar(child: _notiActivity())),
+          if (_warning != null)
+            Text(
+              'เตือนภัยทั้งหมด ${_warning.length}',
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.red,
+              ),
+            ),
+          if (_warning != null)
+            Expanded(child: Scrollbar(child: _notiWarning())),
+        ],
       ),
     );
   }

@@ -3,13 +3,15 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:v2/data/EvalResultData.dart';
 import 'package:v2/data/apiData.dart';
 
 import '../style/constants.dart';
 import 'create_farm_result_profit.dart';
 import 'google_map_screen.dart';
+import 'package:buddhist_datetime_dateformat/buddhist_datetime_dateformat.dart';
+import 'loading.dart';
 
 class EvaluateVarityScreen extends StatefulWidget {
   @override
@@ -20,6 +22,7 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
   String _options;
   String _farmlocation;
   final formKey = new GlobalKey<FormState>();
+  bool loading = false;
 
   DateTime _dateTime;
   var result;
@@ -40,7 +43,7 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
   Map provinceCode = {
     "กรุงเทพมหานคร": 1,
     "นนทบุรี": 2,
-    "พระนครศรีอยุธยา": 3,
+    "จังหวัดพระนครศรีอยุธยา": 3,
     "ฉะเชิงเทรา": 4,
     "ราชบุรี": 5,
     "นครปฐม": 6,
@@ -85,9 +88,12 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
   @override
   void initState() {
     super.initState();
+
     _varietie = {0: 'เลือกพันธ์ข้าว'};
+    farmlocation = null;
     //_dateTime = DateTime.now();
     getvarieties();
+    initializeDateFormatting();
   }
 
   Widget _buildOptionSelector() {
@@ -217,43 +223,45 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
           height: 100,
-          child: Column(
-            children: [
-              FlatButton(
-                child: Icon(
-                  Icons.calendar_today,
-                  color: Colors.grey,
-                ),
-                onPressed: () {
-                  showDatePicker(
-                    context: context,
-                    initialDate: _dateTime == null
-                        ? DateTime.now().add(Duration(days: 1))
-                        : _dateTime,
-                    firstDate: DateTime.now().add(Duration(days: 1)),
-                    lastDate: DateTime(2100),
-                  ).then((date) {
-                    setState(
-                      () {
-                        _dateTime = date;
-                      },
-                    );
-                  });
-                },
+          child: Padding(
+            padding: EdgeInsets.all(14),
+            child: FlatButton(
+              onPressed: () {
+                showDatePicker(
+                  context: context,
+                  initialDate: _dateTime == null ? DateTime.now() : _dateTime,
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime(2100),
+                ).then((date) {
+                  setState(
+                    () {
+                      _dateTime = date;
+                    },
+                  );
+                });
+              },
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.calendar_today,
+                    color: Colors.grey,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        _dateTime == null
+                            ? 'กรุณากำหนดวันเริ่มต้นทำนา'
+                            : DateFormat('dd MMMM yyyy', 'th')
+                                .formatInBuddhistCalendarThai(_dateTime),
+                        style: kHintTextStyle,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              TextField(
-                enabled: false,
-                keyboardType: TextInputType.datetime,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.only(left: 14),
-                    hintText: _dateTime == null
-                        ? 'กรุณากำหนดวันเริ่มต้นทำนา'
-                        : _dateTime.toString(),
-                    hintStyle: kHintTextStyle),
-              ),
-            ],
+            ),
           ),
         ),
         SizedBox(height: 10),
@@ -289,24 +297,26 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
         Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  moveToSecondPage();
-                },
-                icon: Icon(Icons.map),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    _location == null ? 'แตะเลือกตำแหน่งจากแผนที่' : _location,
-                    style: kTextStyle,
+          child: FlatButton(
+            onPressed: () {
+              moveToSecondPage();
+            },
+            child: Row(
+              children: [
+                Icon(Icons.map),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      _location == null
+                          ? 'แตะเลือกตำแหน่งจากแผนที่'
+                          : _location,
+                      style: kTextStyle,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         SizedBox(height: 10),
@@ -321,20 +331,20 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
       child: RaisedButton(
         elevation: 5,
         onPressed: () async {
-          print(provinceCode[farmlocation["province"]]);
-          print(_optionCode[_options]);
-          print(_varietieCode[_varietieselected]);
-          var dateformatt = DateFormat('yyyy-MM-dd' 'T' 'HH:mm:ss.sss');
-          var sdate = dateformatt.format(_dateTime) + 'Z';
-          print(sdate);
+          setState(() {
+            loading = true;
+          });
           var validateOption;
           var validateDate;
           _options == null ? validateOption = false : validateOption = true;
           _dateTime == null ? validateDate = false : validateDate = true;
-          if (validateOption && validateDate) {
-            print('eval');
+          if (validateOption && validateDate && farmlocation != null) {
+            var dateformatt = DateFormat('yyyy-MM-dd' 'T' 'HH:mm:ss.sss');
+            var sdate = dateformatt.format(_dateTime) + 'Z';
             result = await varieties_eval(
-              provinceCode[farmlocation["province"]],
+              provinceCode[farmlocation["province"]] == null
+                  ? 1
+                  : provinceCode[farmlocation["province"]],
               _optionCode[_options],
               _varietieCode[_varietieselected] == null
                   ? 0
@@ -343,8 +353,9 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
             );
             print(result);
             var resultList = jsonDecode(result) as List;
-            print('tagObjs');
-            print('result');
+            setState(() {
+              loading = false;
+            });
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -357,6 +368,36 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
                 ),
               ),
             );
+          } else {
+            setState(() {
+              loading = false;
+            });
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(
+                    'ข้อผิดพลาด',
+                    style: kLabelStyle,
+                  ),
+                  content: Text(
+                    'กรุณากรอกข้อมูลให้ครบ',
+                    style: kTextStyle,
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text(
+                        'ยืนยัน',
+                        style: kTextStyle,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
           }
         },
         padding: EdgeInsets.symmetric(
@@ -368,7 +409,7 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
         ),
         color: Colors.white,
         child: Text(
-          'ต่อไป',
+          'เริ่มการประเมิน',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18,
@@ -392,7 +433,7 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
     };
 
     var json = jsonEncode(<String, dynamic>{
-      "location": location,
+      "province": location,
       "evaltype": evaltype,
       "varietie": varieties,
       "startDate": startDate.toString(),
@@ -414,40 +455,42 @@ class _EvaluateVarityScreenState extends State<EvaluateVarityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'วิเคราะห์พันธุ์ข้าว',
-          style: kLabelStyle,
-        ),
-        backgroundColor: colorTheam,
-      ),
-      body: Stack(
-        children: [
-          SizedBox(height: 10),
-          Container(
-            height: double.infinity,
-            child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(
-                horizontal: 40,
-                vertical: 60,
+    return loading
+        ? Loading()
+        : Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'วิเคราะห์พันธุ์ข้าว',
+                style: kLabelStyle,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildOptionSelector(),
-                  SizedBox(height: 10),
-                  _buildVarietiesSelector(),
-                  _buildStartDate(),
-                  _buildFarmLocation(),
-                  _buildButton(),
-                ],
-              ),
+              backgroundColor: colorTheam,
             ),
-          )
-        ],
-      ),
-    );
+            body: Stack(
+              children: [
+                SizedBox(height: 10),
+                Container(
+                  height: double.infinity,
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 60,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildOptionSelector(),
+                        SizedBox(height: 10),
+                        _buildVarietiesSelector(),
+                        _buildStartDate(),
+                        _buildFarmLocation(),
+                        _buildButton(),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
   }
 }

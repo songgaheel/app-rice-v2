@@ -1,5 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:intl/intl.dart';
+import 'package:v2/data/apiData.dart';
 import 'package:v2/style/constants.dart';
+
+import 'varieties_detail_secreen.dart';
 
 class FarmProfileProfit extends StatefulWidget {
   final dynamic evalproduct;
@@ -21,6 +28,7 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
   dynamic _priceS;
   dynamic _profitS;
   dynamic _varietiesName;
+  dynamic _varietiesID;
 
   @override
   void initState() {
@@ -33,21 +41,134 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
     //_productS = widget.evalproduct['product']['status'];
     //_priceS = widget.evalproduct['price']['status'];
     //_profitS = widget.evalproduct['profit']['status'];
-    _varietiesName = widget.varieties;
-    print(widget.evalproduct);
-    print(_costV);
-    print(_productV);
-    print(_priceV);
-    print(_profitV);
+    _varietiesName = widget.varieties['rice_varieties_name'];
+    _varietiesID = widget.varieties['ID'];
+  }
+
+  varieties_information(int vID) async {
+    var ip = ip_host.host;
+    var url = ip + 'api/init/ricevarityinfo';
+    Map<String, String> headers = {
+      "Content-type": "application/json; charset=UTF-8"
+    };
+
+    var json = jsonEncode(<String, dynamic>{
+      "ID": vID,
+    });
+
+    print(json);
+    final Response response = await post(
+      url,
+      headers: headers,
+      body: json,
+    );
+
+    if (response.statusCode == 200) {
+      var res = response.body;
+      var ret = jsonDecode(res);
+      //print(ret);
+      return ret;
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
+    }
   }
 
   Widget _selectVarieties() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'พันธุ์ข้าว',
-          style: kLabelStyle,
+        Row(
+          children: [
+            Text(
+              'พันธุ์ข้าว',
+              style: kLabelStyle,
+            ),
+            IconButton(
+              onPressed: () async {
+                print('varieties information');
+                print(_varietiesID);
+                var ret = await varieties_information(_varietiesID);
+
+                if (ret['status'] == 'success') {
+                  var riceVarityInfo = ret['riceVarityInfo'];
+                  var disease4 = '';
+                  var disease3 = '';
+                  var disease2 = '';
+                  var disease1 = '';
+                  riceVarityInfo.forEach((key, value) {
+                    if (key != 'rice_price_type' && key != 'ID') {
+                      switch (value) {
+                        case 4:
+                          {
+                            disease4 = disease4 + key.toString() + ' ';
+                          }
+                          break;
+                        case 3:
+                          {
+                            disease3 = disease3 + key.toString() + ' ';
+                          }
+                          break;
+                        case 2:
+                          {
+                            disease2 = disease2 + key.toString() + ' ';
+                          }
+                          break;
+                        case 1:
+                          {
+                            disease1 = disease1 + key.toString() + ' ';
+                          }
+                          break;
+                        default:
+                      }
+                    }
+                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VarietiesDetailScreen(
+                        riceVarityInfo: riceVarityInfo,
+                        disease4: disease4,
+                        disease3: disease3,
+                        disease2: disease2,
+                        disease1: disease1,
+                      ),
+                    ),
+                  );
+                }
+                if (ret['status'] == 'fail') {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          'ข้อผิดพลาด',
+                          style: kLabelStyle,
+                        ),
+                        content: Text(
+                          ret['msg'],
+                          style: kTextStyle,
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text(
+                              'ยืนยัน',
+                              style: kTextStyle,
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
+              icon: Icon(
+                Icons.search,
+              ),
+            ),
+          ],
         ),
         SizedBox(height: 10),
         Container(
@@ -100,7 +221,7 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
                 ),*/
                 hintText: _costV == -1
                     ? 'ยังไม่ได้ดำเนินการ'
-                    : _costV.toString() + ' บาท/ไร่',
+                    : NumberFormat("#,###.##").format(_costV) + ' บาท/ไร่',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -127,7 +248,7 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
                 ),*/
                 hintText: _productV == -1
                     ? 'ยังไม่ได้ดำเนินการ'
-                    : _productV.toString() + ' กก./ไร่',
+                    : NumberFormat("#,###.##").format(_productV) + ' กก./ไร่',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -154,7 +275,7 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
                 ),*/
                 hintText: _priceV == -1
                     ? 'ยังไม่ได้ดำเนินการ'
-                    : _priceV.toString() + ' บาท/ตัน',
+                    : NumberFormat("#,###.##").format(_priceV) + ' บาท/ตัน',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -181,7 +302,7 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
                 ),*/
                 hintText: _profitV == -1
                     ? 'ยังไม่ได้ดำเนินการ'
-                    : _profitV.toString() + ' บาท/ไร่',
+                    : NumberFormat("#,###.##").format(_profitV) + ' บาท/ไร่',
                 hintStyle: kHintTextStyle),
           ),
         )
@@ -192,6 +313,7 @@ class _FarmProfileProfitState extends State<FarmProfileProfit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       body: Stack(
         children: [
           Container(

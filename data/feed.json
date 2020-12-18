@@ -1,0 +1,88 @@
+[
+    {
+        "feedPicture": null,
+        "farmID": null,
+        "name": "farm1",
+        "order": 1,
+        "activitiesDate": "2020-11-15T00:00:00.000000Z",
+        "caption": null,
+        "status": false,
+        "feedType": 1,
+        "activities": [
+            {
+                "code_type": 1,
+                "array_code": [
+                    {
+                        "activityCode": 101,
+                        "activity": "เริ่มปลูกข้าว",
+                        "picture": "http://www.ricethailand.go.th/rkb3/12072913474a0cec4f6205716d.jpg",
+                        "activate": false
+                    },
+                    {
+                        "activityCode": 102,
+                        "activity": "ตรวจสอบระดับน้ำ 3 เซนติเมตร",
+                        "picture": "http://www.ricethailand.go.th/rkb3/%E0%B8%A3%E0%B8%96%E0%B9%84%E0%B8%96%E0%B8%99%E0%B8%B2.jpg",
+                        "activate": false
+                    },
+                    {
+                        "activityCode": 103,
+                        "activity": "ให้ปู๋ยสูตร xx-xx-xx",
+                        "picture": "http://www.ricethailand.go.th/rkb3/0019.jpg",
+                        "activate": false
+                    }
+                ]
+            },
+            {
+                "code_type": 2,
+                "array_code": [
+                    {
+                        "activityCode": 202,
+                        "activity": "ตรวจสอบเพลี้ยไฟ",
+                        "picture": "http://www.ricethailand.go.th/rkb3/bug_001.jpg",
+                        "activate": false
+                    }
+                ]
+            }
+        ],
+        "activityLenght": 3,
+        "warningLenght": 1
+    },
+    {
+        "feedPicture": "http://www.ricethailand.go.th/rkb3/12072913474a0cec4f6205716d.jpg",
+        "farmID": null,
+        "name": "กรมการข้าว",
+        "order": 2,
+        "activitiesDate": "2020-11-15T00:00:00.000000Z",
+        "caption": "เทคนิคการเตรียมดินก่อนการปลูกข้าว: การเตรียมดิน เป็นการเตรียมพื้นที่ให้เหมาะสำหรับการปลูกข้าว ซึ่งจะส่งผลดีต่อการเจริญเติบโตของข้าว โดยปรับสภาพดินให้เหมาะสมกับการงอกของเมล็ดข้าว การเจริญเติบโตของข้าว รวมถึงการช่วยควบคุมวัชพืช โรค แมลงศัตรูข้าวและสัตว์ศัตรูข้าวที่อาศัยอยู่ในดิน การเตรียมดินยังส่งผลให้ฟางข้าว ตอซังข้าวและวัชพืชถูกไถกลบลงไปในดินเป็นการเพิ่มความอุดมสมบูรณ์ให้แก่ดิน นอกจากนี้ยังทำให้ธาตุอาหารพืชที่สะสมอยู่ในดินชั้นล่างกลับขึ้นมาอยู่บนผิวดิน วิธีการเตรียมดินเพื่อปลูกข้าวนั้น ขึ้นอยู่กับคุณสมบัติของดินและสภาพแวดล้อมในแปลงนาก่อนการปลูก โดยการ ไถดะ ไถแปร คราด และทำเทือก ",
+        "status": false,
+        "feedType": 2,
+        "activities": [
+            {
+                "code_type": 3,
+                "array_code": [
+                    {
+                        "activityCode": 301,
+                        "activity": "",
+                        "picture": "http://www.ricethailand.go.th/rkb3/12072913474a0cec4f6205716d.jpg",
+                        "activate": false
+                    },
+                    {
+                        "activityCode": 302,
+                        "activity": "",
+                        "picture": "http://www.ricethailand.go.th/rkb3/%E0%B8%A3%E0%B8%96%E0%B9%84%E0%B8%96%E0%B8%99%E0%B8%B2.jpg",
+                        "activate": false
+                    },
+                    {
+                        "activityCode": 303,
+                        "activity": "",
+                        "picture": "http://www.ricethailand.go.th/rkb3/0019.jpg",
+                        "activate": false
+                    }
+                ]
+            }
+            
+        ],
+        "activityLenght": 0,
+        "warningLenght": 0
+    }
+]

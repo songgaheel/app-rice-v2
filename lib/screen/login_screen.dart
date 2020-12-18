@@ -1,15 +1,18 @@
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:v2/data/apiData.dart';
+import 'package:v2/screen/registration_screen.dart';
 
 import '../style/constants.dart';
 
 import 'main_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
+import 'package:google_place/google_place.dart' as googleLocation;
+import 'package:location/location.dart';
+import 'loading.dart';
 
 class LoginScreen extends StatefulWidget {
   final APIdata ip_host;
@@ -23,7 +26,24 @@ class _LoginScreenState extends State<LoginScreen> {
   SharedPreferences logindata;
   var phonenumber;
   var password;
-  var status;
+  var res;
+  var rememberlogin = false;
+  var province;
+  LocationData _myLocation;
+  var googlePlace =
+      googleLocation.GooglePlace("AIzaSyAgIlwWm-g9ucv6fiYXLTq9Jj9G9zqrmnY");
+
+  bool loading = false;
+  dynamic _varieties;
+  Map<int, String> _varietie = {0: 'เลือกพันธ์ข้าว'};
+  Map<String, int> _varietieCode = {'เลือกพันธ์ข้าว': 0};
+
+  @override
+  void initState() {
+    print('login screen');
+
+    super.initState();
+  }
 
   user_login(String phone, String password) async {
     print(phone);
@@ -33,20 +53,20 @@ class _LoginScreenState extends State<LoginScreen> {
     Map<String, String> headers = {
       "Content-type": "application/json; charset=UTF-8"
     };
-    var json = convert.jsonEncode(<String, String>{
+    var json = jsonEncode(<String, String>{
       "phonenumber": phone,
       "password": password.toString(),
     });
 
     print(json);
-    final http.Response response = await http.post(
+    final Response response = await post(
       url,
       headers: headers,
       body: json,
     );
 
     if (response.statusCode == 200) {
-      var res = convert.jsonDecode(response.body);
+      var res = jsonDecode(response.body);
       print(res);
       return res;
     } else {
@@ -123,15 +143,28 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildForgetSingInData() {
+  Widget _buildRememberLogin() {
     return Container(
-      alignment: Alignment.centerRight,
-      child: FlatButton(
-        onPressed: () => print('ลืมข้อมูลเข้าสู่ระบบ'),
-        padding: EdgeInsets.only(right: 0),
-        child: Text(
-          'ลืมข้อมูลเข้าสู่ระบบ',
-          style: kTextStyle,
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Row(
+          children: [
+            Checkbox(
+              value: rememberlogin,
+              onChanged: (bool value) async {
+                print(value);
+                await _initLocation();
+
+                setState(() {
+                  rememberlogin = value;
+                });
+              },
+            ),
+            Text(
+              "บันทึกการเข้าสู่ระบบ",
+              style: kTextStyle,
+            ),
+          ],
         ),
       ),
     );
@@ -144,21 +177,90 @@ class _LoginScreenState extends State<LoginScreen> {
       child: RaisedButton(
         elevation: 5,
         onPressed: () async {
-          status = await user_login(phonenumber, password);
-
-          if ((status['status'] == 'ok')) {
-            var initData = await _init_data();
-            print(initData);
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MainScreen(
-                  initData: initData,
+          setState(() {
+            loading = true;
+          });
+          if (phonenumber != null && password != null) {
+            res = await user_login(phonenumber, password);
+            print('res');
+            print(res);
+            if ((res['status'] == 'success')) {
+              var initData = await _init_data();
+              //var feed = await _loadCharacterData();
+              //initData['feed'] = feed;
+              setState(() {
+                loading = false;
+              });
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MainScreen(
+                    initData: initData,
+                  ),
                 ),
-              ),
-            );
+              );
+            } else {
+              setState(() {
+                loading = false;
+              });
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text(
+                      'ข้อผิดพลาด',
+                      style: kLabelStyle,
+                    ),
+                    content: Text(
+                      res['msg'],
+                      style: kTextStyle,
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text(
+                          'ยืนยัน',
+                          style: kTextStyle,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+              print(res['status']);
+            }
           } else {
-            print(status['status']);
+            setState(() {
+              loading = false;
+            });
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(
+                    'ข้อผิดพลาด',
+                    style: kLabelStyle,
+                  ),
+                  content: Text(
+                    'กรุณากรอกข้อมูลให้ครบ',
+                    style: kTextStyle,
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text(
+                        'ยืนยัน',
+                        style: kTextStyle,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
           }
         },
         padding: EdgeInsets.all(15),
@@ -174,13 +276,93 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Future _loadCharacterData() async {
+    String data = await rootBundle.loadString("data/feed.json");
+    final timeline = json.decode(data);
+
+    return timeline;
+  }
+
   _init_data() async {
-    var uid = await _uidkeeper();
-    var _initData = _get_init_data(uid);
+    if (rememberlogin) {
+      var uid = await _uidkeeper();
+    }
+
+    await _initLocation();
+
+    print(_myLocation);
+    var political = await googlePlace.search.getNearBySearch(
+      googleLocation.Location(
+        lat: _myLocation.latitude,
+        lng: _myLocation.longitude,
+      ),
+      100,
+      language: "th",
+      type: 'sublocality_level_1,sublocality,locality,political',
+    );
+    province = political.results.first.name;
+
+    //var _updateFeed = _update_feed();
+    var _initData = await _get_init_data(res['uid'], province);
+    var price = await _get_price_currentMonth();
+    await getvarieties();
+
+    _initData['vname'] = _varietie;
+    _initData['vcode'] = _varietieCode;
+    _initData['price'] = price['rice_price_predict'];
+    print(_initData['vname']);
+    print(_initData['vcode']);
+    print(_initData['price']);
+
     return _initData;
   }
 
-  _get_init_data(String uid) async {
+  getvarieties() async {
+    _varieties = await varieties_get();
+
+    _varietie = Map.fromIterable(_varieties,
+        key: (varieties) => varieties['ID'] as int,
+        value: (varieties) => varieties['rice_varieties_name'] as String);
+
+    _varietieCode = Map.fromIterable(_varieties,
+        key: (varieties) => varieties['rice_varieties_name'] as String,
+        value: (varieties) => varieties['ID'] as int);
+    print(_varietie.values.toList());
+  }
+
+  varieties_get() async {
+    var ip = ip_host.host;
+    var url = ip + 'api/varietie/get';
+    Map<String, String> headers = {
+      "Content-type": "application/json; charset=UTF-8"
+    };
+
+    print(json);
+    final Response response = await get(
+      url,
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      var res = response.body;
+      var ret = jsonDecode(res);
+      //print(ret);
+      return ret;
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
+    }
+  }
+
+  void _initLocation() async {
+    var location = new Location();
+    try {
+      _myLocation = await location.getLocation();
+    } on Exception {
+      _myLocation = null;
+    }
+  }
+
+  _get_init_data(String uid, String province) async {
     var ip = ip_host.host;
     var url = ip + 'api/init/data';
     Map<String, String> headers = {
@@ -188,9 +370,10 @@ class _LoginScreenState extends State<LoginScreen> {
     };
     var json = jsonEncode(<String, dynamic>{
       "_id": uid,
+      "Province": province,
     });
-
-    //print(json);
+    print('json');
+    print(json);
     final Response response = await post(
       url,
       headers: headers,
@@ -206,9 +389,29 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  _get_price_currentMonth() async {
+    var ip = ip_host.host;
+    var url = ip + 'api/farm/ricepricepredict';
+    Map<String, String> headers = {
+      "Content-type": "application/json; charset=UTF-8"
+    };
+    final Response response = await post(
+      url,
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      var res = jsonDecode(response.body);
+      //print(res);
+      return res;
+    } else {
+      //print('Request failed with status: ${response.statusCode}.');
+    }
+  }
+
   _uidkeeper() async {
     logindata = await SharedPreferences.getInstance();
-    logindata.setString('uid', status['uid']);
+    logindata.setString('uid', res['uid']);
     var uid = logindata.getString('uid');
     print(uid);
     return uid;
@@ -221,7 +424,10 @@ class _LoginScreenState extends State<LoginScreen> {
       child: RaisedButton(
         elevation: 5,
         onPressed: () {
-          Navigator.pushNamed(context, '/registration');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RegistrationScreen()),
+          );
           //apitest();
           /*Navigator.pushReplacement(
             context,
@@ -243,46 +449,61 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.green[400],
-      body: Stack(
-        children: [
-          Container(
-            height: double.infinity,
-            child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(
-                horizontal: 40,
-                vertical: 120,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'ลงชื่อเข้าใช้',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+    return loading
+        ? Loading()
+        : Scaffold(
+            backgroundColor: Colors.green[400],
+            body: Stack(
+              children: [
+                Container(
+                  height: double.infinity,
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 120,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Glas Rice',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 50),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Text(
+                            'เข้าสู่ระบบ',
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        _buildPhonefrom(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _buildUserfrom(),
+                        _buildRememberLogin(),
+
+                        //_buildRememberMe(),
+                        SizedBox(
+                          height: 50,
+                        ),
+                        _buildLoginButton(),
+                        _buildRegisterButton()
+                      ],
                     ),
                   ),
-                  SizedBox(height: 30),
-                  _buildPhonefrom(),
-
-                  SizedBox(
-                    height: 30,
-                  ),
-                  _buildUserfrom(),
-                  _buildForgetSingInData(),
-                  //_buildRememberMe(),
-                  _buildLoginButton(),
-                  _buildRegisterButton()
-                ],
-              ),
+                )
+              ],
             ),
-          )
-        ],
-      ),
-    );
+          );
   }
 }

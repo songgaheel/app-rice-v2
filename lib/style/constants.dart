@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 
 final kHintTextStyle = TextStyle(
   color: Colors.grey[500],
-  fontSize: 20.0,
+  fontSize: 16.0,
 );
 
 final kTextStyle = TextStyle(
-  fontSize: 20.0,
+  fontSize: 16.0,
 );
 
 final kLabelStyle = TextStyle(
   color: Colors.black,
   fontWeight: FontWeight.bold,
-  fontSize: 24.0,
+  fontSize: 20.0,
 );
 
 final colorTheam = Colors.lightGreen;

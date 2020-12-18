@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:v2/data/FarmData.dart';
 import 'package:v2/data/apiData.dart';
 
 import '../style/constants.dart';
@@ -36,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
 
     super.initState();
     _initData = widget.initData;
-    print(_initData['feed']['feed']);
+    //print(_initData['feed']['feed']);
   }
 
   midnight_test(dynamic uid, dynamic today) async {
@@ -65,10 +64,10 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  _init_data() async {
+  /*_init_data() async {
     var _initData0 = _get_init_data(_initData['userData']['name']['_id']);
     return _initData0;
-  }
+  }*/
 
   _get_init_data(String uid) async {
     var ip = ip_host.host;
@@ -99,14 +98,14 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, //5
+      length: 5, //5
       child: Scaffold(
         appBar: AppBar(
           //automaticallyImplyLeading: false,
           backgroundColor: colorTheam,
           title: Text(
             'GLAS RICE',
-            style: kLabelStyle,
+            style: TextStyle(color: Colors.white, fontSize: 20),
           ),
           bottom: TabBar(
             labelColor: Colors.black,
@@ -116,7 +115,7 @@ class _MainScreenState extends State<MainScreen> {
               Tab(
                 icon: Icon(Icons.assignment),
               ),
-              /*Tab(
+              Tab(
                 icon: Icon(Icons.book),
               ),
               Tab(
@@ -124,9 +123,9 @@ class _MainScreenState extends State<MainScreen> {
               ),
               Tab(
                 icon: Icon(Icons.store),
-              ),*/
+              ),
               Tab(
-                icon: Icon(Icons.account_circle),
+                icon: Icon(Icons.view_list),
               ),
             ],
           ),
@@ -134,6 +133,8 @@ class _MainScreenState extends State<MainScreen> {
             IconButton(
               icon: Icon(Icons.logout),
               onPressed: () async {
+                logindata = await SharedPreferences.getInstance();
+                await logindata.clear();
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -142,42 +143,29 @@ class _MainScreenState extends State<MainScreen> {
                 );
               },
             ),
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: () async {
-                var uid = _initData['userData']['name']['_id'];
-                today = DateTime.now().add(Duration(days: 1));
-                var dateformatt = DateFormat('yyyy-MM-dd' 'T' 'HH:mm:ss.sss');
-                var sdate = dateformatt.format(today) + 'Z';
-                print(today);
-                var midnight = await midnight_test(uid, sdate.toString());
-                var initData = await _init_data();
-                print(initData);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MainScreen(
-                      initData: initData,
-                    ),
-                  ),
-                );
-              },
-            )
           ],
         ),
         body: TabBarView(
           children: <Widget>[
             Feed(
-              feeds: _initData['feed']['feed'],
+              feeds: _initData['feed'],
+              notifications: _initData['notification'],
             ),
-            //RKBScreen(),
-            //WeatherScreen(),
-            //RicePriceScreen(),
+            RKBScreen(),
+            WeatherScreen(
+              weather: _initData['weatherForecast7Days'],
+            ),
+            RicePriceScreen(
+              price: _initData['price'],
+              vname: _initData['vname'],
+              vcode: _initData['vcode'],
+            ),
             AccountScreen(
-              userID: _initData['userData']['name']['_id'],
-              username: _initData['userData']['name']['name'],
+              userID: _initData['userData']['uid'],
+              username: _initData['userData']['name'],
               useraddress: _initData['userData']['address']['formattedAddress'],
-              farmList: _initData['farms']['farms'],
+              userphonenumber: _initData['userData']['phonenumber'],
+              farmList: _initData['farms'],
             )
           ],
         ),

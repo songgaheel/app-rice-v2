@@ -77,14 +77,15 @@ class _FarmInformaionState extends State<FarmInformaion> {
             keyboardType: TextInputType.name,
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.landscape,
-                  color: Colors.grey,
-                ),
-                hintText: _farmName,
-                hintStyle: kHintTextStyle),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.only(left: 14),
+              prefixIcon: Icon(
+                Icons.landscape,
+                color: Colors.grey,
+              ),
+              hintText: _farmName,
+              hintStyle: kHintTextStyle,
+            ),
           ),
         ),
         SizedBox(height: 10),
@@ -101,15 +102,16 @@ class _FarmInformaionState extends State<FarmInformaion> {
             keyboardType: TextInputType.number,
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
-                enabled: false,
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: Icon(
-                  Icons.landscape,
-                  color: Colors.grey,
-                ),
-                hintText: _farmSize.toString(), //
-                hintStyle: kHintTextStyle),
+              enabled: false,
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.only(top: 14),
+              prefixIcon: Icon(
+                Icons.landscape,
+                color: Colors.grey,
+              ),
+              hintText: _farmSize.toString(), //
+              hintStyle: kHintTextStyle,
+            ),
           ),
         )
       ],
@@ -119,6 +121,7 @@ class _FarmInformaionState extends State<FarmInformaion> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       body: Stack(
         children: [
           Container(

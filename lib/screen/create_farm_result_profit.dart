@@ -1,13 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart';
-import 'package:v2/data/EvalData.dart';
-import 'package:v2/data/EvalResultData.dart';
+import 'package:intl/intl.dart';
 import 'package:v2/data/apiData.dart';
 
 import '../style/constants.dart';
 import 'create_farm_result_timeline.dart';
+import 'varieties_detail_secreen.dart';
 
 class EvalResultProfit extends StatefulWidget {
   //result
@@ -121,7 +122,7 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
     _profitS = _result[0]['profit']['status'];
     selectedVarieties = _result[0];
 
-    /*print(_varieties);
+    /*print(selectedVarieties);
     print(_cost);
     print(_product);
     print(_price);
@@ -139,13 +140,129 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
     _dateTime = widget.dateTime;
   }
 
+  varieties_information(int vID) async {
+    var ip = ip_host.host;
+    var url = ip + 'api/init/ricevarityinfo';
+    Map<String, String> headers = {
+      "Content-type": "application/json; charset=UTF-8"
+    };
+
+    var json = jsonEncode(<String, dynamic>{
+      "ID": vID,
+    });
+
+    print(json);
+    final Response response = await post(
+      url,
+      headers: headers,
+      body: json,
+    );
+
+    if (response.statusCode == 200) {
+      var res = response.body;
+      var ret = jsonDecode(res);
+      //print(ret);
+      return ret;
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
+    }
+  }
+
   Widget _selectVarieties() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'พันธุ์ที่แนะนำ',
-          style: kLabelStyle,
+        Row(
+          children: [
+            Text(
+              'พันธุ์ที่แนะนำ',
+              style: kLabelStyle,
+            ),
+            IconButton(
+              onPressed: () async {
+                print(_id);
+                var ret = await varieties_information(_id);
+
+                if (ret['status'] == 'success') {
+                  var riceVarityInfo = ret['riceVarityInfo'];
+                  var disease4 = '';
+                  var disease3 = '';
+                  var disease2 = '';
+                  var disease1 = '';
+                  riceVarityInfo.forEach((key, value) {
+                    if (key != 'rice_price_type' && key != 'ID') {
+                      switch (value) {
+                        case 4:
+                          {
+                            disease4 = disease4 + key.toString() + ' ';
+                          }
+                          break;
+                        case 3:
+                          {
+                            disease3 = disease3 + key.toString() + ' ';
+                          }
+                          break;
+                        case 2:
+                          {
+                            disease2 = disease2 + key.toString() + ' ';
+                          }
+                          break;
+                        case 1:
+                          {
+                            disease1 = disease1 + key.toString() + ' ';
+                          }
+                          break;
+                        default:
+                      }
+                    }
+                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VarietiesDetailScreen(
+                        riceVarityInfo: riceVarityInfo,
+                        disease4: disease4,
+                        disease3: disease3,
+                        disease2: disease2,
+                        disease1: disease1,
+                      ),
+                    ),
+                  );
+                }
+                if (ret['status'] == 'fail') {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          'ข้อผิดพลาด',
+                          style: kLabelStyle,
+                        ),
+                        content: Text(
+                          ret['msg'],
+                          style: kTextStyle,
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text(
+                              'ยืนยัน',
+                              style: kTextStyle,
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
+              icon: Icon(
+                Icons.search,
+              ),
+            ),
+          ],
         ),
         SizedBox(
           height: 10,
@@ -224,12 +341,13 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
             keyboardType: TextInputType.emailAddress,
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
-                enabled: false,
-                border: InputBorder.none,
-                //contentPadding: EdgeInsets.only(top: 14),
-                prefixIcon: _status[_costS],
-                hintText: _cost.toString() + ' บาท/ไร่',
-                hintStyle: kHintTextStyle),
+              enabled: false,
+              border: InputBorder.none,
+              //contentPadding: EdgeInsets.only(top: 14),
+              prefixIcon: _status[_costS],
+              hintText: NumberFormat("#,###.##").format(_cost) + ' บาท/ไร่',
+              hintStyle: kHintTextStyle,
+            ),
           ),
         ),
         SizedBox(height: 10),
@@ -250,7 +368,8 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
                 border: InputBorder.none,
                 //contentPadding: EdgeInsets.only(top: 14),
                 prefixIcon: _status[_productS],
-                hintText: _product.toString() + ' กก./ไร่',
+                hintText:
+                    NumberFormat("#,###.##").format(_product) + ' กก./ไร่',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -272,7 +391,7 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
                 border: InputBorder.none,
                 //contentPadding: EdgeInsets.only(top: 14),
                 prefixIcon: _status[_priceS],
-                hintText: _price.toString() + ' บาท/ตัน',
+                hintText: NumberFormat("#,###.##").format(_price) + ' บาท/ตัน',
                 hintStyle: kHintTextStyle),
           ),
         ),
@@ -294,12 +413,24 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
                 border: InputBorder.none,
                 //contentPadding: EdgeInsets.only(top: 14),
                 prefixIcon: _status[_profitS],
-                hintText: _profit.toString() + ' บาท/ไร่',
+                hintText: NumberFormat("#,###.##").format(_profit) + ' บาท/ไร่',
                 hintStyle: kHintTextStyle),
           ),
         )
       ],
     );
+  }
+
+  Future _loadCharacterData() async {
+    String data = await rootBundle.loadString("data/timeline.json");
+    final timeline = json.decode(data);
+
+    /*final jsonResult = CharacterData.fromJson(parsed);
+  print(jsonResult.name);
+  print(jsonResult.image);
+  print(jsonResult.description);*/
+
+    return timeline;
   }
 
   Widget _buildButton() {
@@ -308,8 +439,23 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
       width: double.infinity,
       child: RaisedButton(
         elevation: 5,
-        onPressed: () {
+        onPressed: () async {
           //print(selectedVarieties);
+          var timeline = await _loadCharacterData();
+          print('timeline');
+          print(timeline);
+          //selectedVarieties['timeline'] = timeline["timeline"];
+          print('selectedVarieties');
+          print(selectedVarieties);
+          /*var tl = selectedVarieties['timeline'];
+          var activities = tl[0]['activities'];
+          var activities1 = activities[0]['array_code'];
+          var activities2 = activities[1]['array_code'];
+          var activity = [activities1, activities2].expand((x) => x).toList();
+
+          print('tl');
+          print(activity);*/
+
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -348,7 +494,7 @@ class _EvalResultProfitState extends State<EvalResultProfit> {
         ),
         color: Colors.white,
         child: Text(
-          'ต่อไป',
+          'ดูปฏิทินกิจกรรม',
           style: kTextStyle,
         ),
       ),

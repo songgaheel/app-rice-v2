@@ -5,6 +5,8 @@ import 'package:v2/style/constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
+import 'loading.dart';
+
 // ignore: non_constant_identifier_names
 user_register(String name, String phone, String password) async {
   print(name);
@@ -29,7 +31,7 @@ user_register(String name, String phone, String password) async {
   );
 
   if (response.statusCode == 200) {
-    var res = response.body;
+    var res = convert.jsonDecode(response.body);
     print(res);
     return res;
   } else {
@@ -46,17 +48,112 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   var name;
   var phonenumber;
   var password;
-  var status;
+  var res;
+  bool loading = false;
   Widget _buildButton() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 25),
       width: double.infinity,
       child: RaisedButton(
         onPressed: () async {
-          status = await user_register(name, phonenumber, password);
-          print(status);
-          if (status == 'ok') {
-            Navigator.pop(context);
+          setState(() {
+            loading = true;
+          });
+          if (name == null && phonenumber == null && password == null) {
+            setState(() {
+              loading = false;
+            });
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(
+                    'ข้อผิดพลาด',
+                    style: kLabelStyle,
+                  ),
+                  content: Text(
+                    'กรุณากรอกข้อมูลให้ครบ',
+                    style: kTextStyle,
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text(
+                        'ยืนยัน',
+                        style: kTextStyle,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            res = await user_register(name, phonenumber, password);
+            print(res);
+            if (res['status'] == 'success') {
+              setState(() {
+                loading = false;
+              });
+              await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text(
+                      'สร้างผู้ใช้สำเร็จ',
+                      style: kLabelStyle,
+                    ),
+                    content: Text(
+                      'กลับสู่หน้าเข้าสู่ระบบ',
+                      style: kTextStyle,
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text(
+                          'ยืนยัน',
+                          style: kTextStyle,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+              Navigator.pop(context);
+            } else {
+              setState(() {
+                loading = false;
+              });
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text(
+                      'ข้อผิดพลาด',
+                      style: kLabelStyle,
+                    ),
+                    content: Text(
+                      res['msg'],
+                      style: kTextStyle,
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text(
+                          'ยืนยัน',
+                          style: kTextStyle,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
           }
         },
         padding: EdgeInsets.symmetric(
@@ -68,7 +165,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
         color: Colors.white,
         child: Text(
-          'ต่อไป',
+          'สร้างบัญชี',
           style: TextStyle(
               color: Colors.black,
               letterSpacing: 1.5,
@@ -170,39 +267,41 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'ลงทะเบียนผู้ใช้',
-          style: kLabelStyle,
-        ),
-        backgroundColor: colorTheam,
-      ),
-      body: Stack(
-        children: [
-          SizedBox(
-            height: 30,
-          ),
-          Container(
-            height: double.infinity,
-            child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(
-                horizontal: 40,
-                vertical: 60,
+    return loading
+        ? Loading()
+        : Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'ลงทะเบียนผู้ใช้',
+                style: kLabelStyle,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildFarmNameTB(),
-                  SizedBox(height: 10),
-                  _buildButton(),
-                ],
-              ),
+              backgroundColor: colorTheam,
             ),
-          )
-        ],
-      ),
-    );
+            body: Stack(
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Container(
+                  height: double.infinity,
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 60,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildFarmNameTB(),
+                        SizedBox(height: 10),
+                        _buildButton(),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
   }
 }

@@ -67,24 +67,26 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
         Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  moveToSecondPage();
-                },
-                icon: Icon(Icons.map),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    _location == null ? 'แตะเลือกตำแหน่งจากแผนที่' : _location,
-                    style: kTextStyle,
+          child: FlatButton(
+            onPressed: () {
+              moveToSecondPage();
+            },
+            child: Row(
+              children: [
+                Icon(Icons.map),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      _location == null
+                          ? 'แตะเลือกตำแหน่งจากแผนที่'
+                          : _location,
+                      style: kTextStyle,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         SizedBox(height: 10),
@@ -200,6 +202,33 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
                 ),
               );
             }
+          } else {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(
+                    'ข้อผิดพลาด',
+                    style: kLabelStyle,
+                  ),
+                  content: Text(
+                    'กรุณากรอกข้อมูลให้ครบ',
+                    style: kTextStyle,
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text(
+                        'ยืนยัน',
+                        style: kTextStyle,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
           }
         },
         padding: EdgeInsets.symmetric(
@@ -257,6 +286,33 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
             } else {
               print(status);
             }
+          } else {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(
+                    'ข้อผิดพลาด',
+                    style: kLabelStyle,
+                  ),
+                  content: Text(
+                    'กรุณากรอกข้อมูลให้ครบ',
+                    style: kTextStyle,
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text(
+                        'ยืนยัน',
+                        style: kTextStyle,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
           }
         }
       },
@@ -272,7 +328,7 @@ class _CreateFarmScreenState extends State<CreateFarmScreen> {
           style: kLabelStyle,
         ),
         backgroundColor: colorTheam,
-        actions: [_saveFarm()],
+        //actions: [_saveFarm()],
       ),
       body: Stack(
         children: [

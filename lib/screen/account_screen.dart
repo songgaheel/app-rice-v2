@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:v2/data/FarmData.dart';
 import 'package:v2/data/apiData.dart';
 import 'package:v2/style/constants.dart';
 
@@ -10,19 +9,19 @@ import 'account_user.dart';
 import 'farm_profile_screen.dart';
 
 class AccountScreen extends StatefulWidget {
-  final Farm farm;
   final dynamic userID;
   final dynamic username;
   final dynamic useraddress;
+  final dynamic userphonenumber;
   final dynamic farmList;
 
   const AccountScreen({
     Key key,
-    this.farm,
     this.username,
     this.useraddress,
     this.userID,
     this.farmList,
+    this.userphonenumber,
   }) : super(key: key);
   @override
   _AccountScreenState createState() => _AccountScreenState();
@@ -32,6 +31,7 @@ class _AccountScreenState extends State<AccountScreen> {
   dynamic _userID;
   dynamic _username;
   dynamic _useraddress;
+  dynamic _userPhonenumber;
   dynamic _farms;
 
   @override
@@ -42,6 +42,7 @@ class _AccountScreenState extends State<AccountScreen> {
     _userID = widget.userID;
     _username = widget.username;
     _useraddress = widget.useraddress;
+    _userPhonenumber = widget.userphonenumber;
     _farms = widget.farmList;
   }
 
@@ -100,6 +101,7 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       body: ListView(
         scrollDirection: Axis.vertical,
         children: [
@@ -107,15 +109,16 @@ class _AccountScreenState extends State<AccountScreen> {
             child: FlatButton(
               onPressed: () async {
                 print('user');
-                var user = await user_information(_userID);
-                print(user);
+                print(_userID);
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => UserScreen(
+                      userID: _userID,
                       userAddress: _useraddress,
                       userName: _username,
-                      userPhonenumber: user['uid']['phonenumber'],
+                      userPhonenumber: _userPhonenumber,
                     ),
                   ),
                 );
@@ -124,7 +127,10 @@ class _AccountScreenState extends State<AccountScreen> {
                 child: Column(
                   children: [
                     ListTile(
-                      leading: Icon(Icons.account_circle),
+                      leading: Icon(
+                        Icons.account_circle,
+                        size: 40,
+                      ),
                       title: Text(
                         _username,
                         style: kTextStyle,
@@ -162,7 +168,10 @@ class _AccountScreenState extends State<AccountScreen> {
                     child: Column(
                       children: [
                         ListTile(
-                          leading: Icon(Icons.landscape),
+                          leading: Icon(
+                            Icons.landscape,
+                            size: 40,
+                          ),
                           title: Text(
                             _farms[i]['name'],
                             style: kTextStyle,

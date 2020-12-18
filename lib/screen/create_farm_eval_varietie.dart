@@ -2,12 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:v2/data/EvalResultData.dart';
 import 'package:v2/data/apiData.dart';
 
 import '../style/constants.dart';
 import 'create_farm_result_profit.dart';
+import 'loading.dart';
 
 class FarmEvaluateVarityScreen extends StatefulWidget {
   final String uid;
@@ -68,6 +69,8 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
 
   var result;
 
+  bool loading = false;
+
   @override
   void initState() {
     super.initState();
@@ -84,6 +87,7 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
     _uid = widget.uid;
 
     getvarieties();
+    initializeDateFormatting();
   }
 
   getvarieties() async {
@@ -223,46 +227,51 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
         ),
         SizedBox(height: 10),
         Container(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.center,
           decoration: kBoxDecorationStyle,
           height: 100,
-          child: Column(
-            children: [
-              FlatButton(
-                child: Icon(
-                  Icons.calendar_today,
-                  color: Colors.grey,
+          child: Padding(
+            padding: EdgeInsets.all(14),
+            child: FlatButton(
+              onPressed: () {
+                showDatePicker(
+                  context: context,
+                  initialDate: _dateTime == null ? DateTime.now() : _dateTime,
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime(2100),
+                ).then((date) {
+                  setState(
+                    () {
+                      _dateTime = date;
+                    },
+                  );
+                });
+              },
+              child: Align(
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      color: Colors.grey,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          _dateTime == null
+                              ? 'กรุณากำหนดวันเริ่มต้นทำนา'
+                              : DateFormat('dd MMMM yyyy', 'th')
+                                  .format(_dateTime),
+                          style: kHintTextStyle,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                onPressed: () {
-                  showDatePicker(
-                    context: context,
-                    initialDate: _dateTime == null
-                        ? DateTime.now().add(Duration(days: 1))
-                        : _dateTime,
-                    firstDate: DateTime.now().add(Duration(days: 1)),
-                    lastDate: DateTime(2100),
-                  ).then((date) {
-                    setState(
-                      () {
-                        _dateTime = date;
-                      },
-                    );
-                  });
-                },
               ),
-              TextField(
-                enabled: false,
-                keyboardType: TextInputType.datetime,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.only(left: 14),
-                    hintText: _dateTime == null
-                        ? 'กรุณากำหนดวันเริ่มต้นทำนา'
-                        : _dateTime.toString(),
-                    hintStyle: kHintTextStyle),
-              ),
-            ],
+            ),
           ),
         ),
         SizedBox(height: 10),
@@ -349,21 +358,20 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
       child: RaisedButton(
         elevation: 5,
         onPressed: () async {
-          print(provinceCode[_province]);
-          print(_optionCode[_options]);
-          print(_varietieCode[_varietieselected]);
-          print(_dateTime);
-          var dateformatt = DateFormat('yyyy-MM-dd' 'T' 'HH:mm:ss.sss');
-          var sdate = dateformatt.format(_dateTime) + 'Z';
-          print(sdate);
+          setState(() {
+            loading = true;
+          });
           var validateOption;
           var validateDate;
           _options == null ? validateOption = false : validateOption = true;
           _dateTime == null ? validateDate = false : validateDate = true;
           if (validateOption && validateDate) {
+            var dateformatt = DateFormat('yyyy-MM-dd' 'T' 'HH:mm:ss.sss');
+            var sdate = dateformatt.format(_dateTime) + 'Z';
+            print(sdate);
             print('eval');
             result = await varieties_eval(
-              provinceCode[_province],
+              provinceCode[_province] == null ? 1 : provinceCode[_province],
               _optionCode[_options],
               _varietieCode[_varietieselected] == null
                   ? 0
@@ -372,12 +380,9 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
             );
             print(result);
             var resultList = jsonDecode(result) as List;
-            /*List<EvalResult> tagObjs = tagObjsJson
-                .map((tagJson) => EvalResult.fromJson(tagJson))
-                .toList();*/
-            //print(resultList);
-            print('tagObjs');
-            print('result');
+            setState(() {
+              loading = false;
+            });
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -397,6 +402,36 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
                 ),
               ),
             );
+          } else {
+            setState(() {
+              loading = false;
+            });
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(
+                    'ข้อผิดพลาด',
+                    style: kLabelStyle,
+                  ),
+                  content: Text(
+                    'กรุณากรอกข้อมูลให้ครบ',
+                    style: kTextStyle,
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text(
+                        'ยืนยัน',
+                        style: kTextStyle,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
           }
         },
         padding: EdgeInsets.symmetric(
@@ -408,7 +443,7 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
         ),
         color: Colors.white,
         child: Text(
-          'ต่อไป',
+          'เริ่มการประเมิน',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18,
@@ -431,7 +466,7 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
       "Content-type": "application/json; charset=UTF-8"
     };
     var json = jsonEncode(<String, dynamic>{
-      "location": location,
+      "province": location,
       "evaltype": evaltype,
       "varietie": varieties,
       "startDate": startDate.toString(),
@@ -476,39 +511,41 @@ class _FarmEvaluateVarityScreen extends State<FarmEvaluateVarityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'วิเคราะห์พันธุ์ข้าว',
-          style: kLabelStyle,
-        ),
-        backgroundColor: colorTheam,
-      ),
-      body: Stack(
-        children: [
-          SizedBox(height: 10),
-          Container(
-            height: double.infinity,
-            child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(
-                horizontal: 40,
-                vertical: 60,
+    return loading
+        ? Loading()
+        : Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'วิเคราะห์พันธุ์ข้าว',
+                style: kLabelStyle,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildOptionSelector(),
-                  SizedBox(height: 10),
-                  _buildVarietiesSelector(),
-                  _buildStartDate(),
-                  _buildButton(),
-                ],
-              ),
+              backgroundColor: colorTheam,
             ),
-          )
-        ],
-      ),
-    );
+            body: Stack(
+              children: [
+                SizedBox(height: 10),
+                Container(
+                  height: double.infinity,
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 60,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildOptionSelector(),
+                        SizedBox(height: 10),
+                        _buildVarietiesSelector(),
+                        _buildStartDate(),
+                        _buildButton(),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
   }
 }

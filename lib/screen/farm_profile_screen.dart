@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:v2/screen/farm_profile_information.dart';
 import 'package:v2/style/constants.dart';
 
+import 'farm_profile_note.dart';
 import 'farm_profile_profit.dart';
 import 'farm_profile_timeline.dart';
 
@@ -18,15 +19,18 @@ class _FarmProfileScreenState extends State<FarmProfileScreen> {
   dynamic _farmLocationAddress;
   dynamic _farmSize;
   dynamic _evalproduct;
-  dynamic _varietiesName;
-  dynamic _farmTlP;
-  dynamic _farmTlF;
+  dynamic _varieties;
+  dynamic _farmTimeline;
+  dynamic _fid;
+  dynamic _farmNote;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _farmName = widget.farm['farm']['name'];
+    _farmNote = widget.farm['farm']['note'];
+    _fid = widget.farm['farm']['_id'];
     _farmLocationAddress = widget.farm['farm']['location']['formattedAddress'];
     _farmSize = widget.farm['farm']['size'];
     if (widget.farm['farm']['evalproduct'] != null) {
@@ -39,18 +43,21 @@ class _FarmProfileScreenState extends State<FarmProfileScreen> {
         'profit': {'value': -1},
       };
     }
-    if (widget.farm['varietie'] != null)
-      _varietiesName = widget.farm['varietie']['rice_varieties_name'];
+    if (widget.farm['varietie'] != null) {
+      _varieties = widget.farm['varietie'];
+    }
 
-    _farmTlP = widget.farm['farm']['timelinePast'];
-    _farmTlF = widget.farm['farm']['timelineFuture'];
+    _farmTimeline = widget.farm['farm']['timeline'];
+    print('พันธ์ข้าว');
+    print(_varieties);
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
+        backgroundColor: Colors.grey[300],
         appBar: AppBar(
           //automaticallyImplyLeading: false,
           backgroundColor: colorTheam,
@@ -72,9 +79,12 @@ class _FarmProfileScreenState extends State<FarmProfileScreen> {
               Tab(
                 icon: Icon(Icons.timeline),
               ),
+              Tab(
+                icon: Icon(Icons.notes),
+              ),
             ],
           ),
-          actions: [
+          /*actions: [
             IconButton(
               icon: Icon(Icons.share),
               onPressed: () {
@@ -100,7 +110,7 @@ class _FarmProfileScreenState extends State<FarmProfileScreen> {
                 );
               },
             )
-          ],
+          ],*/
         ),
         body: TabBarView(
           children: <Widget>[
@@ -111,13 +121,17 @@ class _FarmProfileScreenState extends State<FarmProfileScreen> {
             ),
             FarmProfileProfit(
               evalproduct: _evalproduct,
-              varieties: _varietiesName == null
-                  ? 'ยังไม่ได้ดำเนินการ'
-                  : _varietiesName,
+              varieties: _varieties == null ? 'ยังไม่ได้ดำเนินการ' : _varieties,
             ),
             FarmTimeline(
-              timelineFuture: _farmTlF,
-              timelinePast: _farmTlP,
+              farmName: _farmName,
+              //farmPhoto: _farmPhoto,
+              timeline: _farmTimeline,
+              fid: _fid,
+            ),
+            FarmProfileNote(
+              fid: _fid,
+              note: _farmNote,
             ),
           ],
         ),
